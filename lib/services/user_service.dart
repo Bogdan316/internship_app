@@ -83,7 +83,6 @@ class UserService {
     try {
       await dbConn.query(
           "DELETE FROM ${user.runtimeType} WHERE id = ?", [user.getUserId]);
-      print(user.toString() + ' deleted');
     } on MySqlException {
       rethrow;
     } finally {
