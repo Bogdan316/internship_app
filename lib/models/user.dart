@@ -10,11 +10,16 @@ class User {
 
   String? get getUsername => _username;
   String? get getPassword => _password;
+  int? get getUserId => _id;
 
   User.fromMap(dynamic obj) {
     _id = obj['id'] as int;
     _username = obj['username'] as String;
     _password = obj['password'] as String;
+  }
+
+  void setUserId(int id) {
+    _id = id;
   }
 
   @override
