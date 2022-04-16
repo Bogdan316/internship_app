@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 
+import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
 import 'package:internship_app_fis/exceptions/user_already_exists.dart';
 import 'package:internship_app_fis/services/user_service.dart';
 import 'package:internship_app_fis/models/user.dart';
+import 'package:internship_app_fis/base_widgets/custom_snack_bar.dart';
 
 class LoginTab extends StatefulWidget {
-  // Login page that handles the user sign up, password encryption and username
+  // Login tab that handles the user signup/login, password encryption and username
   // and password storage based on the user role: Student/Company
   final String _userRole;
 
@@ -21,58 +23,86 @@ class _LoginTabState extends State<LoginTab> {
   final _usernameCtr = TextEditingController();
   final _passwordCtr = TextEditingController();
 
-  SnackBar _snackBarBuilder(String message) {
-    // Builds a snack bar that pops up from the bottom of the displaying
-    // the message given as the argument
-
-    return SnackBar(
-      content: Text(message),
-      action: SnackBarAction(
-        label: 'OK',
-        onPressed: () {
-          // empty function, the argument is mandatory but we do not need any
-          // action when pressing the button
-        },
-      ),
-    );
-  }
-
-  void _submitUser() async {
-    // Reads the input from the two controllers and checks that it is not empty
-    // and that a user with the same username does not exist, if the conditions
-    // are met then the password is encrypted and the user is stored into the
-    // database
+  User? _formInputValidation() {
+    // Reads the input from the two controllers, if it is not empty returns
+    // a new user with the username and the encrypted password
 
     if (_usernameCtr.text.isEmpty || _passwordCtr.text.isEmpty) {
       // Check if the input fields are empty
       final snackBar =
-          _snackBarBuilder('The username and password fields are mandatory.');
+          MessageSnackBar('The username and password fields are mandatory.');
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      return;
+      return null;
     }
 
     // Password encryption
     var encPass = utf8.encode(_passwordCtr.text);
     var passHashValue = sha1.convert(encPass).toString();
 
-    try {
-      // Create a new user based on the role selected in the dropdown
-      if (widget._userRole == 'Student') {
-        await UserService.addUser(Student(_usernameCtr.text, passHashValue));
-      } else {
-        await UserService.addUser(Company(_usernameCtr.text, passHashValue));
-      }
+    // Return a user object based on the user role
+    if (widget._userRole == 'Student') {
+      return Student(_usernameCtr.text, passHashValue);
+    } else {
+      return Company(_usernameCtr.text, passHashValue);
+    }
+  }
 
-      final snackBar = _snackBarBuilder('Success.');
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    } on UserAlreadyExistsException catch (e) {
-      final snackBar = _snackBarBuilder(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  void _signupUser() async {
+    // Gets the validated form input, if it is not empty then
+    // checks that a user with the same username does not exist, if true then
+    // adds the new user into the database
+
+    var user = _formInputValidation();
+
+    if (user == null) {
       return;
     }
 
-    // Clear the text fields after if adding the user ended with success
+    try {
+      // Create a new user based on the role selected in the constructor
+      if (widget._userRole == 'Student') {
+        await UserService.addUser(user);
+      } else {
+        await UserService.addUser(user);
+      }
+
+      final snackBar = MessageSnackBar('Success.');
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } on UserAlreadyExistsException catch (e) {
+      final snackBar = MessageSnackBar(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+
+    // If adding the user ended with success, clear the text fields
+    setState(() {
+      _usernameCtr.clear();
+      _passwordCtr.clear();
+    });
+  }
+
+  void _loginUser() async {
+    // Gets the validated form input, if it is not empty then
+    // checks that a user with the same username and password exists in the database,
+    // if true then logs in the user
+
+    var user = _formInputValidation();
+
+    if (user == null) {
+      return;
+    }
+
+    var userEntry = await UserService.getUser(user);
+
+    if (userEntry == null) {
+      final snackBar = MessageSnackBar('Wrong username or password.');
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } else {
+      final snackBar = MessageSnackBar('Successful Login.');
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+
+    // clear the text fields at the end
     setState(() {
       _usernameCtr.clear();
       _passwordCtr.clear();
@@ -89,127 +119,130 @@ class _LoginTabState extends State<LoginTab> {
 
   @override
   Widget build(BuildContext context) {
+    // get MediaQuery and Theme data at the begging to avoid redundant
+    // calls to build
     var mediaQuery = MediaQuery.of(context);
-    return SizedBox(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(15),
-              width: double.infinity,
-              height: mediaQuery.size.height * 0.35,
-              margin: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(20),
-                ),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey,
-                    blurRadius: 10,
-                    spreadRadius: 1,
+    var themeData = Theme.of(context);
+
+    return GestureDetector(
+      // Ensure that when the user taps the screen the TextFields will unfocus
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Container(
+        // Background container
+        color: Colors.white,
+        child: SingleChildScrollView(
+          child: Column(
+            // Holds the Login and Signup forms
+            children: [
+              Container(
+                // Top container that holds the Login form
+                padding: const EdgeInsets.all(15),
+                width: double.infinity,
+                height: mediaQuery.size.height * 0.35,
+                margin: const EdgeInsets.fromLTRB(20, 50, 20, 25),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20),
                   ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                // Sign up form
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.person_outline,
-                        size: 30,
-                      ),
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.all(15),
-                          height: 40,
-                          child: TextField(
-                            style: const TextStyle(fontSize: 15),
-                            controller: _usernameCtr,
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
-                              labelText: 'Username',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  // Login form
+                  children: [
+                    Row(
+                      // Username input row
+                      children: [
+                        const Icon(
+                          Icons.person_outline,
+                          size: 30,
+                        ),
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.all(15),
+                            height: 40,
+                            child: TextField(
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: themeData.primaryColor,
+                              ),
+                              controller: _usernameCtr,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(10),
+                                labelText: 'Username',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Icon(
-                        Icons.password_outlined,
-                        size: 30,
-                      ),
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.all(15),
-                          height: 40,
-                          child: TextField(
-                            style: const TextStyle(fontSize: 15),
-                            controller: _passwordCtr,
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
-                              labelText: 'Password',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
+                      ],
+                    ),
+                    Row(
+                      // Password input row
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(
+                          Icons.password_outlined,
+                          size: 30,
+                        ),
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.all(15),
+                            height: 40,
+                            child: TextField(
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: themeData.primaryColor,
+                              ),
+                              controller: _passwordCtr,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(10),
+                                labelText: 'Password',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
                                 ),
                               ),
+                              obscureText: true,
                             ),
-                            obscureText: true,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(100, 35),
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CustomElevatedButton(
+                          onPressed: _loginUser,
+                          label: 'Login',
+                          primary: themeData.primaryColorLight,
                         ),
-                        onPressed: _submitUser,
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: const Color.fromRGBO(24, 54, 147, 1),
-                minimumSize: const Size(100, 35),
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              onPressed: _submitUser,
-              child: const Text(
-                'Signup',
-                style: TextStyle(fontSize: 18),
+              CustomElevatedButton(
+                onPressed: _signupUser,
+                label: 'Signup',
+                primary: themeData.primaryColorDark,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

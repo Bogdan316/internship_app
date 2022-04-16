@@ -7,24 +7,31 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // get Theme data at the begging to avoid redundant
+    // calls to build
+    var themeData = Theme.of(context);
+
     return DefaultTabController(
+      // Create a tab for every role
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color.fromRGBO(24, 54, 147, 1),
+          elevation: 0,
+          backgroundColor: themeData.primaryColor,
           title: const Text('Internship App'),
-          bottom: const TabBar(
-            labelColor: Colors.blueAccent,
+          bottom: TabBar(
+            labelColor: themeData.primaryColor,
             unselectedLabelColor: Colors.white,
             indicatorSize: TabBarIndicatorSize.tab,
-            indicator: BoxDecoration(
+            indicator: const BoxDecoration(
+              // Change the shape of the current tab indicator
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
               color: Colors.white,
             ),
-            tabs: [
+            tabs: const [
               Tab(
                 child: Text(
                   'Student',
@@ -46,6 +53,7 @@ class LoginPage extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
+            // Select the user's role based on the tab
             LoginTab('Student'),
             LoginTab('Company'),
           ],
