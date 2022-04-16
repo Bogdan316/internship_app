@@ -7,11 +7,15 @@ class UserService {
   // Class used for communicating with the Company and Student table from
   // the main db
 
-  static Future<User?> getUser(User user) async {
+  final BaseDao dao;
+
+  UserService(this.dao);
+
+  Future<User?> getUser(User user) async {
     // Returns Future with the entry from the table for username and password
     // if the user exists, if not then null
 
-    final MySqlConnection dbConn = await BaseDao.initDb;
+    final MySqlConnection dbConn = await dao.initDb;
     final Results result;
 
     try {
@@ -31,10 +35,10 @@ class UserService {
     }
   }
 
-  static Future<bool> usernameExists(User user) async {
+  Future<bool> usernameExists(User user) async {
     // Returns true if the user with user.username exists in the table
 
-    final MySqlConnection dbConn = await BaseDao.initDb;
+    final MySqlConnection dbConn = await dao.initDb;
     final Results result;
 
     try {
@@ -50,14 +54,14 @@ class UserService {
     return result.isNotEmpty;
   }
 
-  static Future<void> addUser(User user) async {
+  Future<void> addUser(User user) async {
     // Adds a new user to the database, if a user with the same username already
     // exists throws an exception
 
     if (await usernameExists(user)) {
       throw UserAlreadyExistsException();
     } else {
-      final MySqlConnection dbConn = await BaseDao.initDb;
+      final MySqlConnection dbConn = await dao.initDb;
       final Results result;
 
       try {
@@ -75,10 +79,10 @@ class UserService {
     }
   }
 
-  static Future<void> deleteUser(User user) async {
+  Future<void> deleteUser(User user) async {
     // Deletes the user with the matching id
 
-    final MySqlConnection dbConn = await BaseDao.initDb;
+    final MySqlConnection dbConn = await dao.initDb;
 
     try {
       await dbConn.query(

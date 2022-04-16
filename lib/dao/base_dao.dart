@@ -14,7 +14,7 @@ class BaseDao {
     db: Environment.dbSchema,
   );
 
-  static Future<MySqlConnection> get initDb async {
+  Future<MySqlConnection> get initDb async {
     // Returns connection object for the main db
     var conn = await MySqlConnection.connect(settings);
     return conn;
