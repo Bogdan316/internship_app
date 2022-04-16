@@ -36,11 +36,13 @@ dependencies:
   cupertino_icons: ^1.0.2
   mysql1: ^0.19.2
   gradle_properties: ^1.0.0
-  path_provider: any
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mockito:
+  build_runner:
+  test:
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

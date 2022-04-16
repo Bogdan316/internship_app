@@ -7,6 +7,7 @@ import 'package:internship_app_fis/exceptions/user_already_exists.dart';
 import 'package:internship_app_fis/services/user_service.dart';
 import 'package:internship_app_fis/models/user.dart';
 import 'package:internship_app_fis/base_widgets/custom_snack_bar.dart';
+import 'package:internship_app_fis/dao/base_dao.dart';
 
 class LoginTab extends StatefulWidget {
   // Login tab that handles the user signup/login, password encryption and username
@@ -52,8 +53,8 @@ class _LoginTabState extends State<LoginTab> {
     // Gets the validated form input, if it is not empty then
     // checks that a user with the same username does not exist, if true then
     // adds the new user into the database
-
     var user = _formInputValidation();
+    UserService userService = UserService(BaseDao());
 
     if (user == null) {
       return;
@@ -62,9 +63,9 @@ class _LoginTabState extends State<LoginTab> {
     try {
       // Create a new user based on the role selected in the constructor
       if (widget._userRole == 'Student') {
-        await UserService.addUser(user);
+        await userService.addUser(user);
       } else {
-        await UserService.addUser(user);
+        await userService.addUser(user);
       }
 
       final snackBar = MessageSnackBar('Success.');
@@ -87,12 +88,13 @@ class _LoginTabState extends State<LoginTab> {
     // if true then logs in the user
 
     var user = _formInputValidation();
+    UserService userService = UserService(BaseDao());
 
     if (user == null) {
       return;
     }
 
-    var userEntry = await UserService.getUser(user);
+    var userEntry = await userService.getUser(user);
 
     if (userEntry == null) {
       final snackBar = MessageSnackBar('Wrong username or password.');
@@ -155,85 +157,87 @@ class _LoginTabState extends State<LoginTab> {
                     ),
                   ],
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  // Login form
-                  children: [
-                    Row(
-                      // Username input row
-                      children: [
-                        const Icon(
-                          Icons.person_outline,
-                          size: 30,
-                        ),
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.all(15),
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: themeData.primaryColor,
-                              ),
-                              controller: _usernameCtr,
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.all(10),
-                                labelText: 'Username',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(10),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    // Login form
+                    children: [
+                      Row(
+                        // Username input row
+                        children: [
+                          const Icon(
+                            Icons.person_outline,
+                            size: 30,
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.all(15),
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: themeData.primaryColor,
+                                ),
+                                controller: _usernameCtr,
+                                decoration: const InputDecoration(
+                                  contentPadding: EdgeInsets.all(10),
+                                  labelText: 'Username',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      // Password input row
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(
-                          Icons.password_outlined,
-                          size: 30,
-                        ),
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.all(15),
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: themeData.primaryColor,
-                              ),
-                              controller: _passwordCtr,
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.all(10),
-                                labelText: 'Password',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(10),
+                        ],
+                      ),
+                      Row(
+                        // Password input row
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.password_outlined,
+                            size: 30,
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.all(15),
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: themeData.primaryColor,
+                                ),
+                                controller: _passwordCtr,
+                                decoration: const InputDecoration(
+                                  contentPadding: EdgeInsets.all(10),
+                                  labelText: 'Password',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
                                   ),
                                 ),
+                                obscureText: true,
                               ),
-                              obscureText: true,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomElevatedButton(
-                          onPressed: _loginUser,
-                          label: 'Login',
-                          primary: themeData.primaryColorLight,
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomElevatedButton(
+                            onPressed: _loginUser,
+                            label: 'Login',
+                            primary: themeData.primaryColorLight,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               CustomElevatedButton(
