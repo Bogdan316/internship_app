@@ -54,10 +54,18 @@ class _LoginTabState extends State<LoginTab> {
     // Gets the validated form input, if it is not empty then
     // checks that a user with the same username does not exist, if true then
     // adds the new user into the database
+
     var user = _formInputValidation();
 
     if (user == null) {
       return;
+    }
+
+    if (_passwordCtr.text.length < 5) {
+      final snackBar = MessageSnackBar('The password is too short.');
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      return null;
     }
 
     try {

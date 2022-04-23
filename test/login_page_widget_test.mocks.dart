@@ -33,7 +33,7 @@ class MockUserService extends _i1.Mock implements _i4.UserService {
   }
 
   @override
-  _i2.BaseDao get dao => (super.noSuchMethod(Invocation.getter(#dao),
+  _i2.BaseDao get _dao => (super.noSuchMethod(Invocation.getter(#dao),
       returnValue: _FakeBaseDao_0()) as _i2.BaseDao);
   @override
   _i5.Future<_i6.User?> getUser(_i6.User? user) =>

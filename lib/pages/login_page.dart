@@ -4,8 +4,8 @@ import 'package:internship_app_fis/services/user_service.dart';
 import 'login_tab.dart';
 
 class LoginPage extends StatelessWidget {
-  final UserService userService;
-  const LoginPage(this.userService, {Key? key}) : super(key: key);
+  final UserService _userService;
+  const LoginPage(this._userService, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +56,8 @@ class LoginPage extends StatelessWidget {
         body: TabBarView(
           children: [
             // Select the user's role based on the tab
-            LoginTab('Student', userService),
-            LoginTab('Company', userService),
+            LoginTab('Student', _userService),
+            LoginTab('Company', _userService),
           ],
         ),
       ),

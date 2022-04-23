@@ -11,8 +11,8 @@ final internshipApp = InternshipApp(UserService(BaseDao()));
 void main() => runApp(internshipApp);
 
 class InternshipApp extends StatelessWidget {
-  final UserService userService;
-  const InternshipApp(this.userService, {Key? key}) : super(key: key);
+  final UserService _userService;
+  const InternshipApp(this._userService, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class InternshipApp extends StatelessWidget {
           const Color(0xFF01135d),
         ),
       ),
-      home: LoginPage(userService),
+      home: LoginPage(_userService),
     );
   }
 }
