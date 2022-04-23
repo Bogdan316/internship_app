@@ -7,14 +7,15 @@ import 'package:internship_app_fis/exceptions/user_already_exists.dart';
 import 'package:internship_app_fis/services/user_service.dart';
 import 'package:internship_app_fis/models/user.dart';
 import 'package:internship_app_fis/base_widgets/custom_snack_bar.dart';
-import 'package:internship_app_fis/dao/base_dao.dart';
 
 class LoginTab extends StatefulWidget {
   // Login tab that handles the user signup/login, password encryption and username
   // and password storage based on the user role: Student/Company
   final String _userRole;
+  final UserService _userService;
 
-  const LoginTab(this._userRole, {Key? key}) : super(key: key);
+  const LoginTab(this._userRole, this._userService, {Key? key})
+      : super(key: key);
 
   @override
   State<LoginTab> createState() => _LoginTabState();
@@ -54,7 +55,6 @@ class _LoginTabState extends State<LoginTab> {
     // checks that a user with the same username does not exist, if true then
     // adds the new user into the database
     var user = _formInputValidation();
-    UserService userService = UserService(BaseDao());
 
     if (user == null) {
       return;
@@ -63,12 +63,12 @@ class _LoginTabState extends State<LoginTab> {
     try {
       // Create a new user based on the role selected in the constructor
       if (widget._userRole == 'Student') {
-        await userService.addUser(user);
+        await widget._userService.addUser(user);
       } else {
-        await userService.addUser(user);
+        await widget._userService.addUser(user);
       }
 
-      final snackBar = MessageSnackBar('Success.');
+      final snackBar = MessageSnackBar('Successful Signup.');
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } on UserAlreadyExistsException catch (e) {
       final snackBar = MessageSnackBar(e.toString());
@@ -88,13 +88,12 @@ class _LoginTabState extends State<LoginTab> {
     // if true then logs in the user
 
     var user = _formInputValidation();
-    UserService userService = UserService(BaseDao());
 
     if (user == null) {
       return;
     }
 
-    var userEntry = await userService.getUser(user);
+    var userEntry = await widget._userService.getUser(user);
 
     if (userEntry == null) {
       final snackBar = MessageSnackBar('Wrong username or password.');
@@ -140,10 +139,11 @@ class _LoginTabState extends State<LoginTab> {
             children: [
               Container(
                 // Top container that holds the Login form
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(10),
                 width: double.infinity,
                 height: mediaQuery.size.height * 0.35,
-                margin: const EdgeInsets.fromLTRB(20, 50, 20, 25),
+                margin: EdgeInsets.fromLTRB(
+                    20, mediaQuery.size.height * 0.15, 20, 25),
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.all(
                     Radius.circular(20),
@@ -171,7 +171,7 @@ class _LoginTabState extends State<LoginTab> {
                           ),
                           Expanded(
                             child: Container(
-                              margin: const EdgeInsets.all(15),
+                              margin: const EdgeInsets.all(10),
                               height: 40,
                               child: TextField(
                                 style: TextStyle(
@@ -193,6 +193,9 @@ class _LoginTabState extends State<LoginTab> {
                           ),
                         ],
                       ),
+                      const SizedBox(
+                        height: 20,
+                      ),
                       Row(
                         // Password input row
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -203,7 +206,7 @@ class _LoginTabState extends State<LoginTab> {
                           ),
                           Expanded(
                             child: Container(
-                              margin: const EdgeInsets.all(15),
+                              margin: const EdgeInsets.all(10),
                               height: 40,
                               child: TextField(
                                 style: TextStyle(
@@ -225,6 +228,9 @@ class _LoginTabState extends State<LoginTab> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(
+                        height: 20,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,

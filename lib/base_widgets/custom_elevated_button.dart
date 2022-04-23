@@ -13,7 +13,7 @@ class CustomElevatedButton extends ElevatedButton {
           key: key,
           style: ElevatedButton.styleFrom(
             primary: primary,
-            minimumSize: const Size(110, 40),
+            minimumSize: const Size(120, 45),
             elevation: 5,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),

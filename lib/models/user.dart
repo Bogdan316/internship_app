@@ -26,7 +26,7 @@ class User {
   String toString() {
     return runtimeType.toString() +
         ': ' +
-        _id!.toString() +
+        _id.toString() +
         ' ' +
         _username! +
         ' ' +
@@ -40,6 +40,17 @@ class User {
     userMap['password'] = _password;
     return userMap;
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is User &&
+        other._password == _password &&
+        other._password == _password &&
+        other._id == _id;
+  }
+
+  @override
+  int get hashCode => _username.hashCode ^ _password.hashCode ^ _id.hashCode;
 }
 
 class Company extends User {

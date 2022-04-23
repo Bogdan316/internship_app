@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/services/user_service.dart';
 
 import 'login_tab.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  final UserService userService;
+  const LoginPage(this.userService, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +53,11 @@ class LoginPage extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
             // Select the user's role based on the tab
-            LoginTab('Student'),
-            LoginTab('Company'),
+            LoginTab('Student', userService),
+            LoginTab('Company', userService),
           ],
         ),
       ),
