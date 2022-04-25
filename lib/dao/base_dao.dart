@@ -1,5 +1,6 @@
 import 'package:mysql1/mysql1.dart';
-import 'package:internship_app_fis/environment/environment.dart';
+
+import '../environment/environment.dart';
 
 class BaseDao {
   // Class used for connecting to the main db

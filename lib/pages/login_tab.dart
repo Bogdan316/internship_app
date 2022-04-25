@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
-import 'package:internship_app_fis/base_widgets/user_input_row.dart';
-import 'package:internship_app_fis/services/auth_service.dart';
-import 'package:internship_app_fis/services/user_service.dart';
+import '../base_widgets/custom_elevated_button.dart';
+import '../base_widgets/user_input_row.dart';
+import '../pages/create_user_profile_page.dart';
+import '../pages/internships_main_page.dart';
+import '../services/auth_service.dart';
+import '../services/user_service.dart';
 
 class LoginTab extends StatefulWidget {
   // Login tab that handles the user signup/login, password encryption and username
@@ -111,14 +113,21 @@ class _LoginTabState extends State<LoginTab> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           CustomElevatedButton(
-                            onPressed: () {
-                              _authService.loginUser();
+                            onPressed: () async {
+                              final crtUser = await _authService.loginUser();
 
                               // clear the text fields after pressing the button
                               setState(() {
                                 _usernameCtr.clear();
                                 _passwordCtr.clear();
                               });
+
+                              if (crtUser != null) {
+                                Navigator.of(context).pushReplacementNamed(
+                                  InternshipsMainPage.namedRoute,
+                                  arguments: crtUser,
+                                );
+                              }
                             },
                             label: 'Login',
                             primary: themeData.primaryColorLight,
@@ -130,14 +139,21 @@ class _LoginTabState extends State<LoginTab> {
                 ),
               ),
               CustomElevatedButton(
-                onPressed: () {
-                  _authService.signupUser();
+                onPressed: () async {
+                  final crtUser = await _authService.signupUser();
 
                   // clear the text fields after pressing the button
                   setState(() {
                     _usernameCtr.clear();
                     _passwordCtr.clear();
                   });
+
+                  if (crtUser != null) {
+                    Navigator.of(context).pushReplacementNamed(
+                      CreateUserProfilePage.namedRoute,
+                      arguments: crtUser,
+                    );
+                  }
                 },
                 label: 'Signup',
                 primary: themeData.primaryColorDark,

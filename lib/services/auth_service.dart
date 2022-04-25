@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:internship_app_fis/services/user_service.dart';
 
+import '../services/user_service.dart';
 import '../base_widgets/custom_snack_bar.dart';
 import '../exceptions/user_already_exists.dart';
 import '../models/user.dart';
@@ -57,15 +57,15 @@ class AuthService {
     }
   }
 
-  void signupUser() async {
+  Future<User?> signupUser() async {
     // Gets the validated form input, if it is not empty then
     // checks that a user with the same username does not exist, if true then
-    // adds the new user into the database
+    // adds the new user into the database and returns it
 
     var user = _formInputValidation();
 
     if (user == null) {
-      return;
+      return null;
     }
 
     if (_passwordCtr.text.length < _minPasswdLength) {
@@ -76,30 +76,25 @@ class AuthService {
     }
 
     try {
-      // Create a new user based on the role selected in the constructor
-      if (_userRole == 'Student') {
-        await _userService.addUser(user);
-      } else {
-        await _userService.addUser(user);
-      }
-
-      final snackBar = MessageSnackBar('Successful Signup.');
-      ScaffoldMessenger.of(_context).showSnackBar(snackBar);
+      await _userService.addUser(user);
+      return user;
     } on UserAlreadyExistsException catch (e) {
       final snackBar = MessageSnackBar(e.toString());
       ScaffoldMessenger.of(_context).showSnackBar(snackBar);
+
+      return null;
     }
   }
 
-  void loginUser() async {
+  Future<User?> loginUser() async {
     // Gets the validated form input, if it is not empty then
     // checks that a user with the same username and password exists in the database,
-    // if true then logs in the user
+    // if true then logs in the user and returns it
 
     var user = _formInputValidation();
 
     if (user == null) {
-      return;
+      return null;
     }
 
     var userEntry = await _userService.getUser(user);
@@ -107,9 +102,10 @@ class AuthService {
     if (userEntry == null) {
       final snackBar = MessageSnackBar('Wrong username or password.');
       ScaffoldMessenger.of(_context).showSnackBar(snackBar);
+
+      return null;
     } else {
-      final snackBar = MessageSnackBar('Successful Login.');
-      ScaffoldMessenger.of(_context).showSnackBar(snackBar);
+      return userEntry;
     }
   }
 }

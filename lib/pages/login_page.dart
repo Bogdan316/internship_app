@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:internship_app_fis/services/user_service.dart';
 
 import 'login_tab.dart';
+import '../services/user_service.dart';
 
 class LoginPage extends StatelessWidget {
   final UserService _userService;

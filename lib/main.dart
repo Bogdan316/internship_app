@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:internship_app_fis/base_widgets/theme_color.dart';
-import 'package:internship_app_fis/dao/base_dao.dart';
-import 'package:internship_app_fis/pages/login_page.dart';
-import 'package:internship_app_fis/services/user_service.dart';
+import '../base_widgets/theme_color.dart';
+import '../dao/base_dao.dart';
+import '../pages/create_user_profile_page.dart';
+import '../pages/internships_main_page.dart';
+import '../pages/login_page.dart';
+import '../services/user_service.dart';
 
 final internshipApp = InternshipApp(UserService(BaseDao()));
 
@@ -29,6 +31,10 @@ class InternshipApp extends StatelessWidget {
         ),
       ),
       home: LoginPage(_userService),
+      routes: {
+        CreateUserProfilePage.namedRoute: (_) => const CreateUserProfilePage(),
+        InternshipsMainPage.namedRoute: (_) => const InternshipsMainPage(),
+      },
     );
   }
 }

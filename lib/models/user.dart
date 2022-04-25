@@ -1,4 +1,4 @@
-class User {
+abstract class User {
   // Class holding the user model that corresponds to the tables from the
   // main db
 

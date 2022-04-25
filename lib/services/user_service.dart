@@ -1,7 +1,8 @@
-import 'package:internship_app_fis/dao/base_dao.dart';
-import 'package:internship_app_fis/models/user.dart';
-import 'package:internship_app_fis/exceptions/user_already_exists.dart';
 import 'package:mysql1/mysql1.dart';
+
+import '../dao/base_dao.dart';
+import '../models/user.dart';
+import '../exceptions/user_already_exists.dart';
 
 class UserService {
   // Class used for communicating with the Company and Student table from
@@ -31,7 +32,11 @@ class UserService {
     if (result.isEmpty) {
       return null;
     } else {
-      return User.fromMap(result.first);
+      if (user.runtimeType == Company) {
+        return Company.fromMap(result.first);
+      } else {
+        return Student.fromMap(result.first);
+      }
     }
   }
 
