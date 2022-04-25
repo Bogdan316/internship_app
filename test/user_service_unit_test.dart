@@ -46,10 +46,7 @@ void main() {
 
     test('user should exist and return value should not be null', () async {
       var user = await service.getUser(newUser);
-      expect(
-          user?.getUsername == newUser.getUsername &&
-              user?.getPassword == newUser.getPassword,
-          true);
+      expect(user, newUser);
     });
 
     test('user should already exist and not be added', () async {

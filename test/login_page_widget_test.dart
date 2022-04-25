@@ -9,10 +9,17 @@ import 'package:internship_app_fis/exceptions/user_already_exists.dart';
 import 'package:internship_app_fis/main.dart';
 import 'package:internship_app_fis/models/user.dart';
 import 'package:internship_app_fis/services/user_service.dart';
+import 'package:internship_app_fis/pages/create_user_profile_page.dart';
+import 'package:internship_app_fis/pages/internships_main_page.dart';
 
 import 'login_page_widget_test.mocks.dart';
 
-@GenerateMocks([UserService, MySqlConnection])
+@GenerateMocks([
+  UserService,
+  MySqlConnection
+], customMocks: [
+  MockSpec<NavigatorObserver>(returnNullOnMissingStub: true),
+])
 void main() {
   final mockUserService = MockUserService(MockMySqlConnection());
 
@@ -98,8 +105,15 @@ void main() {
       // user with the encrypted value of the 'test_pass' password
       final User testUser =
           Company('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
+      // used for testing page navigation
+      final mockObserver = MockNavigatorObserver();
 
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: InternshipApp(mockUserService),
+          navigatorObservers: [mockObserver],
+        ),
+      );
 
       // switch to Company tab
       var tabs = find.byType(Tab);
@@ -120,8 +134,8 @@ void main() {
       await tester.tap(buttons.first);
       await tester.pumpAndSettle();
 
-      final findSnackBar = find.text('Successful Login.', skipOffstage: false);
-      expect(findSnackBar, findsOneWidget);
+      verify(mockObserver.didPush(any, any));
+      expect(find.byType(InternshipsMainPage), findsOneWidget);
     });
 
     testWidgets('signup should fail if the user exists',
@@ -160,8 +174,15 @@ void main() {
       // user with the encrypted value of the 'test_pass' password
       final User testUser =
           Company('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
+      // used for testing page navigation
+      final mockObserver = MockNavigatorObserver();
 
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: InternshipApp(mockUserService),
+          navigatorObservers: [mockObserver],
+        ),
+      );
 
       // switch to Company tab
       var tabs = find.byType(Tab);
@@ -180,11 +201,10 @@ void main() {
           });
 
       await tester.tap(buttons.last);
-
       await tester.pumpAndSettle();
 
-      final findSnackBar = find.text('Successful Signup.', skipOffstage: false);
-      expect(findSnackBar, findsOneWidget);
+      verify(mockObserver.didPush(any, any));
+      expect(find.byType(CreateUserProfilePage), findsOneWidget);
     });
   });
 
@@ -251,8 +271,15 @@ void main() {
       // user with the encrypted value of the 'test_pass' password
       final User testUser =
           Student('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
+      // used for testing page navigation
+      final mockObserver = MockNavigatorObserver();
 
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: InternshipApp(mockUserService),
+          navigatorObservers: [mockObserver],
+        ),
+      );
 
       var fields = find.byType(TextField);
       await tester.enterText(fields.first, 'test_user');
@@ -268,8 +295,8 @@ void main() {
       await tester.tap(buttons.first);
       await tester.pumpAndSettle();
 
-      final findSnackBar = find.text('Successful Login.', skipOffstage: false);
-      expect(findSnackBar, findsOneWidget);
+      verify(mockObserver.didPush(any, any));
+      expect(find.byType(InternshipsMainPage), findsOneWidget);
     });
 
     testWidgets('signup should fail if the user exists',
@@ -303,6 +330,15 @@ void main() {
       // user with the encrypted value of the 'test_pass' password
       final User testUser =
           Student('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
+      // used for testing page navigation
+      final mockObserver = MockNavigatorObserver();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: InternshipApp(mockUserService),
+          navigatorObservers: [mockObserver],
+        ),
+      );
 
       await tester.pumpWidget(InternshipApp(mockUserService));
 
@@ -318,11 +354,10 @@ void main() {
           });
 
       await tester.tap(buttons.last);
-
       await tester.pumpAndSettle();
 
-      final findSnackBar = find.text('Successful Signup.', skipOffstage: false);
-      expect(findSnackBar, findsOneWidget);
+      verify(mockObserver.didPush(any, any));
+      expect(find.byType(CreateUserProfilePage), findsOneWidget);
     });
   });
 }
