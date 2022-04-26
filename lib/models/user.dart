@@ -1,4 +1,4 @@
-class User {
+abstract class User {
   // Class holding the user model that corresponds to the tables from the
   // main db
 
@@ -10,6 +10,7 @@ class User {
 
   String? get getUsername => _username;
   String? get getPassword => _password;
+  int? get getUserId => _id;
 
   User.fromMap(dynamic obj) {
     _id = obj['id'] as int;
@@ -17,11 +18,15 @@ class User {
     _password = obj['password'] as String;
   }
 
+  void setUserId(int id) {
+    _id = id;
+  }
+
   @override
   String toString() {
     return runtimeType.toString() +
         ': ' +
-        _id!.toString() +
+        _id.toString() +
         ' ' +
         _username! +
         ' ' +
@@ -35,6 +40,17 @@ class User {
     userMap['password'] = _password;
     return userMap;
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is User &&
+        other._password == _password &&
+        other._password == _password &&
+        other._id == _id;
+  }
+
+  @override
+  int get hashCode => _username.hashCode ^ _password.hashCode ^ _id.hashCode;
 }
 
 class Company extends User {

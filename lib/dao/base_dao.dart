@@ -1,5 +1,6 @@
 import 'package:mysql1/mysql1.dart';
-import 'package:internship_app_fis/environment/environment.dart';
+
+import '../environment/environment.dart';
 
 class BaseDao {
   // Class used for connecting to the main db
@@ -14,7 +15,7 @@ class BaseDao {
     db: Environment.dbSchema,
   );
 
-  static Future<MySqlConnection> get initDb async {
+  Future<MySqlConnection> get initDb async {
     // Returns connection object for the main db
     var conn = await MySqlConnection.connect(settings);
     return conn;
