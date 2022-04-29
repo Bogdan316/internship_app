@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:internship_app_fis/pages/add_new_internship_page.dart';
 
 import '../base_widgets/theme_color.dart';
 import '../dao/base_dao.dart';
@@ -34,6 +35,7 @@ class InternshipApp extends StatelessWidget {
       routes: {
         CreateUserProfilePage.namedRoute: (_) => const CreateUserProfilePage(),
         InternshipsMainPage.namedRoute: (_) => const InternshipsMainPage(),
+        AddNewInternshipPage.namedRoute: (_) => const AddNewInternshipPage(),
       },
     );
   }

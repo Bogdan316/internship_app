@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/base_widgets/main_drawer.dart';
 
 import '../models/user.dart';
 
@@ -18,6 +19,7 @@ class InternshipsMainPage extends StatelessWidget {
         backgroundColor: themeData.primaryColor,
         title: const Text('Internship App'),
       ),
+      drawer: const MainDrawer(),
       body: Text(
         crtUser.toString(),
       ),
