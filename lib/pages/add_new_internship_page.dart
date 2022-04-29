@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
-import 'package:internship_app_fis/base_widgets/user_input_row.dart';
+import 'package:internship_app_fis/services/internship_service.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 
 import '../models/internship.dart';
+import '../models/user.dart';
 
 class ParticipantsSlider extends FormField<double> {
   // Builds a slider for the number of participants to be used as a
@@ -14,7 +15,8 @@ class ParticipantsSlider extends FormField<double> {
       {Key? key,
       double initialValue = 0,
       required bool autovalidate,
-      required BuildContext context})
+      required BuildContext context,
+      required void Function(double?) onSaved})
       : super(
           key: key,
           // if the validation condition is not met this ternary operator
@@ -25,6 +27,7 @@ class ParticipantsSlider extends FormField<double> {
               : AutovalidateMode.disabled,
           validator: (val) =>
               val == 0 ? "The number of participants can't be 0" : null,
+          onSaved: onSaved,
           initialValue: initialValue,
           builder: (state) {
             return Column(
@@ -103,6 +106,7 @@ class CustomFormField extends StatelessWidget {
   final int? maxLines;
   final bool autovalidate;
   final void Function()? onTap;
+  final String? Function(String?)? validator;
 
   const CustomFormField(
       {required this.labelText,
@@ -113,6 +117,7 @@ class CustomFormField extends StatelessWidget {
       this.color,
       this.minLines,
       this.maxLines = 1,
+      this.validator,
       Key? key})
       : super(key: key);
 
@@ -133,9 +138,13 @@ class CustomFormField extends StatelessWidget {
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'This field is mandatory';
-          } else {
-            return null;
           }
+
+          if (validator != null) {
+            return validator!(value);
+          }
+
+          return null;
         },
         style: TextStyle(
           fontSize: 15,
@@ -169,14 +178,16 @@ class CustomTagDropDownFormField extends StatelessWidget {
   // Builds a custom dropdown field containing the possible internship tags
   // to be used as a form field
   final bool autovalidate;
-  const CustomTagDropDownFormField({required this.autovalidate, Key? key})
+  final void Function(Tag?)? onSaved;
+  const CustomTagDropDownFormField(
+      {required this.autovalidate, required this.onSaved, Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 15, 0, 10),
-      child: DropdownButtonFormField<int>(
+      child: DropdownButtonFormField<Tag>(
         // if the validation condition is not met this ternary operator
         // ensures that the error message disappears once the user
         // selects another value
@@ -208,11 +219,12 @@ class CustomTagDropDownFormField extends StatelessWidget {
             ),
           ),
         ),
+        onSaved: onSaved,
         // converts the tag values into dropdown items
         items: Tag.values
             .mapIndexed(
-              (idx, value) => DropdownMenuItem<int>(
-                value: idx,
+              (idx, value) => DropdownMenuItem<Tag>(
+                value: value,
                 child: Text(
                   // formats the value of the enum into displayable text
                   TagUtil.convertTagValueToString(value),
@@ -231,7 +243,9 @@ class AddNewInternshipPage extends StatefulWidget {
 
   static const String namedRoute = '/add-new-internship-page';
 
-  const AddNewInternshipPage({Key? key}) : super(key: key);
+  final InternshipService _internshipService;
+  const AddNewInternshipPage(this._internshipService, {Key? key})
+      : super(key: key);
 
   @override
   State<AddNewInternshipPage> createState() => _AddNewInternshipPageState();
@@ -248,20 +262,27 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
   // that needs to be inserted into the db
   final _titleCtr = TextEditingController();
   final _descriptionCtr = TextEditingController();
+  final _requirementsCtr = TextEditingController();
   final _fromDateCtr = TextEditingController();
   final _toDateCtr = TextEditingController();
+  double? _participantsNum;
+  Tag? _internshipTag;
 
   @override
   void dispose() {
     super.dispose();
     _titleCtr.dispose();
     _descriptionCtr.dispose();
+    _requirementsCtr.dispose();
     _fromDateCtr.dispose();
     _toDateCtr.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // the current company accessing the page
+    var crtCompany = ModalRoute.of(context)!.settings.arguments as Company;
+
     return GestureDetector(
       // ensures that when the user taps outside a FormField the
       // FormFiled will lose focus
@@ -292,13 +313,14 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                   CustomFormField(
                     labelText: 'Requirements',
                     autovalidate: _autovalidate,
-                    controller: _titleCtr,
+                    controller: _requirementsCtr,
                     minLines: 10,
                     maxLines: 50,
                   ),
                   ParticipantsSlider(
                     autovalidate: _autovalidate,
                     context: context,
+                    onSaved: (val) => _participantsNum = val,
                   ),
                   // the next two form fields are used as buttons to show
                   // a date picker instead of being used as text input,
@@ -326,6 +348,18 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                     labelText: 'To Date',
                     autovalidate: _autovalidate,
                     controller: _toDateCtr,
+                    validator: (value) {
+                      if (_fromDateCtr.text.isNotEmpty) {
+                        var fromDate =
+                            DateFormat('dd/MM/yyyy').parse(_fromDateCtr.text);
+                        var toDate =
+                            DateFormat('dd/MM/yyyy').parse(_toDateCtr.text);
+                        if (fromDate.isAfter(toDate)) {
+                          return 'The To Date needs to be after the From Date';
+                        }
+                      }
+                      return null;
+                    },
                     onTap: () async {
                       FocusScope.of(context).requestFocus(FocusNode());
                       DateTime? pickedDate = await showDatePicker(
@@ -342,16 +376,45 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                   ),
                   CustomTagDropDownFormField(
                     autovalidate: _autovalidate,
+                    onSaved: (val) => _internshipTag = val,
                   ),
                   Container(
                     margin: const EdgeInsets.fromLTRB(0, 30, 0, 15),
                     child: CustomElevatedButton(
                       label: 'Submit',
                       primary: Theme.of(context).primaryColorDark,
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
+                          var internship = Internship(
+                            companyId: crtCompany.getUserId,
+                            title: _titleCtr.text,
+                            description: _descriptionCtr.text,
+                            fromDate: DateFormat('dd/MM/yyyy')
+                                .parse(_fromDateCtr.text),
+                            toDate:
+                                DateFormat('dd/MM/yyyy').parse(_toDateCtr.text),
+                            participantsNum: _participantsNum!.round(),
+                            tag: _internshipTag,
+                            isOngoing: true,
+                          );
+                          await widget._internshipService
+                              .addInternship(internship);
+
+                          // reset the form
                           _formKey.currentState!.reset();
+
+                          // clears the current values of the form
+                          setState(() {
+                            _titleCtr.clear();
+                            _descriptionCtr.clear();
+                            _requirementsCtr.clear();
+                            _fromDateCtr.clear();
+                            _toDateCtr.clear();
+                            _participantsNum = null;
+                            _internshipTag = null;
+                            _autovalidate = false;
+                          });
                         } else {
                           setState(() {
                             _autovalidate = true;
