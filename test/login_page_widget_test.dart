@@ -21,7 +21,7 @@ import 'login_page_widget_test.mocks.dart';
   MockSpec<NavigatorObserver>(returnNullOnMissingStub: true),
 ])
 void main() {
-  final mockUserService = MockUserService(MockMySqlConnection());
+  final mockUserService = MockUserService();
 
   group('LoginPage - Company:', () {
     testWidgets('has signup and login buttons', (WidgetTester tester) async {
@@ -166,6 +166,31 @@ void main() {
 
       final findSnackBar =
           find.text('The username already exists.', skipOffstage: false);
+      expect(findSnackBar, findsOneWidget);
+    });
+
+    testWidgets('signup should fail if the password is too short',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(InternshipApp(mockUserService));
+
+      // switch to Company tab
+      var tabs = find.byType(Tab);
+      await tester.tap(tabs.last);
+      await tester.pumpAndSettle();
+
+      var fields = find.byType(TextField);
+      await tester.enterText(fields.first, 'test_user');
+      await tester.enterText(fields.last, 'test');
+      await tester.pumpAndSettle();
+
+      var buttons = find.byType(CustomElevatedButton);
+
+      await tester.tap(buttons.last);
+
+      await tester.pumpAndSettle();
+
+      final findSnackBar =
+          find.text('The password is too short.', skipOffstage: false);
       expect(findSnackBar, findsOneWidget);
     });
 

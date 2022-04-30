@@ -26,7 +26,7 @@ class _FakeResults_0 extends _i1.Fake implements _i2.Results {}
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUserService extends _i1.Mock implements _i3.UserService {
-  MockUserService(MockMySqlConnection mockMySqlConnection) {
+  MockUserService() {
     _i1.throwOnMissingStub(this);
   }
 

@@ -21,8 +21,54 @@ import 'user_service_unit_test.mocks.dart';
   MockSpec<Results>(unsupportedMembers: {#fold})
 ])
 void main() {
-  group('UserService - live database:', () {
+  group('UserService Company - live database:', () {
     User newUser = Company('test_user', 'test_user');
+    BaseDao dao = BaseDao();
+    UserService service = UserService(dao);
+
+    test('user should not exist', () async {
+      expect(await service.usernameExists(newUser), false);
+    });
+
+    test('user should not exist and return value should be null', () async {
+      var user = await service.getUser(newUser);
+      expect(user == null, true);
+    });
+
+    test('new user should be added', () async {
+      await service.addUser(newUser);
+      expect(newUser.getUserId != null, true);
+    });
+
+    test('user should exist', () async {
+      expect(await service.usernameExists(newUser), true);
+    });
+
+    test('user should exist and return value should not be null', () async {
+      var user = await service.getUser(newUser);
+      expect(user, newUser);
+    });
+
+    test('user should already exist and not be added', () async {
+      var caughtException = false;
+      try {
+        await service.addUser(newUser);
+      } on UserAlreadyExistsException catch (e) {
+        expect(e.toString(), 'The username already exists.');
+        caughtException = true;
+      }
+
+      expect(caughtException, true);
+    });
+
+    test('user should be deleted', () async {
+      await service.deleteUser(newUser);
+      expect(await service.usernameExists(newUser), false);
+    });
+  });
+
+  group('UserService Student - live database:', () {
+    User newUser = Student('test_user', 'test_user');
     BaseDao dao = BaseDao();
     UserService service = UserService(dao);
 
