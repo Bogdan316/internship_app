@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:internship_app_fis/base_widgets/main_drawer.dart';
 
 import '../models/user.dart';
+import '../base_widgets/main_drawer.dart';
 
 class InternshipsMainPage extends StatelessWidget {
   static const String namedRoute = '/internships-main-page';

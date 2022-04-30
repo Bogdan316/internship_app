@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:internship_app_fis/pages/add_new_internship_page.dart';
-import 'package:internship_app_fis/services/internship_service.dart';
 
 import '../base_widgets/theme_color.dart';
 import '../dao/base_dao.dart';
@@ -9,6 +7,8 @@ import '../pages/create_user_profile_page.dart';
 import '../pages/internships_main_page.dart';
 import '../pages/login_page.dart';
 import '../services/user_service.dart';
+import '../pages/add_new_internship_page.dart';
+import '../services/internship_service.dart';
 
 final internshipApp = InternshipApp(UserService(BaseDao()));
 

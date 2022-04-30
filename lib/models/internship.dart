@@ -58,8 +58,8 @@ class Internship {
     _companyId = obj['companyId'] as int;
     _title = obj['title'] as String;
     _description = obj['description'] as String;
-    _fromDate = obj['fromDate'] as DateTime;
-    _toDate = obj['toDate'] as DateTime;
+    _fromDate = (obj['fromDate'] as DateTime).toUtc();
+    _toDate = (obj['toDate'] as DateTime).toUtc();
     _participantsNum = obj['participantsNum'] as int;
     _tag = Tag.values[obj['tag'] as int];
     _isOngoing = obj['isOngoing'] as int == 1 ? true : false;
@@ -75,7 +75,7 @@ class Internship {
   String? get getTitle => _title;
   int? get getCompanyId => _companyId;
 
-  set setId(int id) {
+  set setId(int? id) {
     _id = id;
   }
 

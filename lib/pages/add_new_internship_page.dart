@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
-import 'package:internship_app_fis/services/internship_service.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 
+import '../base_widgets/custom_elevated_button.dart';
+import '../services/internship_service.dart';
 import '../models/internship.dart';
 import '../models/user.dart';
 

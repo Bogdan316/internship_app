@@ -70,66 +70,10 @@ class MainDrawer extends StatelessWidget {
       'route': AddNewInternshipPage.namedRoute,
       'icon': Icons.add_box
     },
-    {
-      'title': 'Add New Internship',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add_box
-    },
-    {
-      'title': 'Add New Internship',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add_box
-    },
-    {
-      'title': 'Add New Internship',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add_box
-    },
-    {
-      'title': 'Add New Internship',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add_box
-    },
-    {
-      'title': 'Add New Internship',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add_box
-    },
   ];
 
   // items that should be showed in the drawer when the user is a student
-  final _studentDrawerItems = const [
-    {
-      'title': 'Test',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add
-    },
-    {
-      'title': 'Test',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add
-    },
-    {
-      'title': 'Test',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add
-    },
-    {
-      'title': 'Test',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add
-    },
-    {
-      'title': 'Test',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add
-    },
-    {
-      'title': 'Test',
-      'route': AddNewInternshipPage.namedRoute,
-      'icon': Icons.add
-    },
-  ];
+  final _studentDrawerItems = const [];
 
   @override
   Widget build(BuildContext context) {
