@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-
 import '../services/user_service.dart';
 import '../base_widgets/custom_snack_bar.dart';
 import '../exceptions/user_already_exists.dart';
