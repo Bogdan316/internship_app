@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/user.dart';
+import '../base_widgets/main_drawer.dart';
 
 class InternshipsMainPage extends StatelessWidget {
   static const String namedRoute = '/internships-main-page';
@@ -18,6 +19,7 @@ class InternshipsMainPage extends StatelessWidget {
         backgroundColor: themeData.primaryColor,
         title: const Text('Internship App'),
       ),
+      drawer: const MainDrawer(),
       body: Text(
         crtUser.toString(),
       ),
