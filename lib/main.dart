@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:internship_app_fis/pages/edit_profile_page.dart';
+import 'package:internship_app_fis/pages/profile_page.dart';
+import 'package:internship_app_fis/services/user_profile_service.dart';
 
 import '../base_widgets/theme_color.dart';
 import '../dao/base_dao.dart';
@@ -34,7 +37,8 @@ class InternshipApp extends StatelessWidget {
       ),
       home: LoginPage(_userService),
       routes: {
-        CreateUserProfilePage.namedRoute: (_) => const CreateUserProfilePage(),
+        CreateUserProfilePage.namedRoute: (_) => CreateUserProfilePage(UserProfileService(BaseDao())),
+        ProfilePage.namedRoute: (_) => const ProfilePage(),
         InternshipsMainPage.namedRoute: (_) => const InternshipsMainPage(),
         AddNewInternshipPage.namedRoute: (_) =>
             AddNewInternshipPage(InternshipService(BaseDao())),

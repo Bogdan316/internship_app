@@ -1,6 +1,8 @@
-import './user_preferences.dart';
+import 'package:internship_app_fis/pages/profile_page.dart';
+
+import '../models/user.dart';
 import 'package:flutter/material.dart';
-import './user.dart';
+import '../models/user_profile.dart';
 import './profile_widget.dart';
 import './textfield_widget.dart';
 import '/base_widgets/button_widget_edit.dart';
@@ -12,16 +14,44 @@ import '/base_widgets/button_widget_upload.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import './firebase_api.dart';
+import '/services/user_profile_service.dart';
+import '/models/user_profile.dart';
+import 'package:internship_app_fis/models/user_profile.dart';
 
 class EditProfilePage extends StatefulWidget {
+  static const String namedRoute = '/edit_profile_page.dart';//'/create-user-profile';
+  User? currentUser;
+
+  final UserProfileService _userProfileService;
+
+  EditProfilePage(this.currentUser, this._userProfileService, {Key? key})
+      : super(key: key);
+
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  User user = UserPreferences.getUser();
+  //User user = UserPreferences.getUser();
+  late UserProfileService _userProfile; //final
   UploadTask? task;
   File? file;
+
+  //final String _userRole;
+  late UserProfileService _userService;// = UserProfileService.getUserProfileById;
+  late TextEditingController _fullnameCtr;
+  late TextEditingController _emailCtr;
+  late TextEditingController _repoCtr;
+  late TextEditingController _aboutCtr;
+
+  @override
+  void initState(){
+    super.initState();
+    _fullnameCtr = TextEditingController();
+    _emailCtr = TextEditingController();
+    _repoCtr = TextEditingController();
+    _aboutCtr = TextEditingController();
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -30,7 +60,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       physics: BouncingScrollPhysics(),
       children: [
         ProfileWidget(
-          imagePath: user.imagePath,
+          imagePath: '',
           isEdit: true,
           onClicked: () async {
             final image = await ImagePicker()
@@ -41,20 +71,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
             final name = basename(image.path);
             final imageFile = File('${directory.path}/$name');
             final newImage = await File(image.path).copy(imageFile.path);
-            setState(()=>user = user.copy(imagePath: newImage.path));
+            //setState(()=>user = user.copy(imagePath: newImage.path));
           },
         ),
         const SizedBox(height: 24),
         TextFieldWidget(
+          controller: _fullnameCtr,
           label: 'Full Name',
-          text: user.name,
-          onChanged: (name) => user = user.copy(name: name),
+          text: '',
+          onChanged: (_){},
         ),
         const SizedBox(height: 24),
         TextFieldWidget(
+          controller: _emailCtr,
           label: 'Email',
-          text: user.email,
-          onChanged: (email) => user = user.copy(email: email),
+          text: '',
+          onChanged: (_){},
         ),
     const SizedBox(height: 24),
     Center(child: ButtonWidgetUpload(
@@ -78,23 +110,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
         task != null ? buildUploadStatus(task!) : Container(),
         const SizedBox(height: 24),
         TextFieldWidget(
+          controller: _repoCtr,
           label: 'Repository Link',
-          text: user.repo,
-          onChanged: (repo) => user = user.copy(repo: repo),
+          text: '',
+          onChanged: (_){},
         ),
         const SizedBox(height: 24),
         TextFieldWidget(
+          controller: _aboutCtr,
           label: 'About',
-          text: user.about,
+          text: '',
           maxLines:5,
-          onChanged: (about) => user = user.copy(about: about),
+          onChanged: (_){},
         ),
         const SizedBox(height: 24),
         ButtonWidget(
           text: 'Save',
-          onClicked: () {
-            UserPreferences.setUser(user);
-            Navigator.of(context).pop();
+          onClicked: () async {
+            var userProfile = widget.currentUser.runtimeType == Student ?
+            StudentProfile(id: null, userId: widget.currentUser!.getUserId, fullname: _fullnameCtr.text, email: _emailCtr.text,
+                repo: _repoCtr.text, about:_aboutCtr.text,)
+                : CompanyProfile(id: null, userId: widget.currentUser!.getUserId, fullname: _fullnameCtr.text, email: _emailCtr.text,
+                about:_aboutCtr.text,);
+            await widget._userProfileService.addUserProfile(userProfile);
+            Navigator.of(context).pushReplacementNamed(
+                ProfilePage.namedRoute,
+                arguments: userProfile,);
           },
         ),
       ],

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 //import './appbar_widget.dart';
-import './user_preferences.dart';
 import './profile_widget.dart';
-import './user.dart';
+import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
 import './edit_profile_page.dart';
 //import './button_widget_upload.dart';
@@ -12,6 +11,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '/base_widgets/button_widget_download.dart';
 
 class ProfilePage extends StatefulWidget {
+  static const String namedRoute = '/profile_page';//'/create-user-profile';
+
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
@@ -29,7 +30,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = UserPreferences.getUser();
+    final crtUser = ModalRoute.of(context)!.settings.arguments as UserProfile;
+    //final user = UserPreferences.getUser();
     return Scaffold(
       //appBar: buildAppBar(context),
       body:
@@ -49,11 +51,11 @@ class _ProfilePageState extends State<ProfilePage> {
               margin: const EdgeInsets.only(bottom: bottom),
             child:
             ProfileWidget(
-            imagePath: user.imagePath,
+            imagePath: '',
             onClicked: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => EditProfilePage()),
-              );
+              //await Navigator.of(context).push(
+                //MaterialPageRoute(builder: (context) => EditProfilePage()),
+              //);
               setState((){});
             },
           ),
@@ -62,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
           ),
           const SizedBox(height: 80),
-          buildName(user),
+          buildName(crtUser),
           const SizedBox(height: 24),
           Center(child: buildUpgradeButton()),
           const SizedBox(height: 24),
@@ -83,22 +85,22 @@ class _ProfilePageState extends State<ProfilePage> {
           ),*/
           const SizedBox(height: 24),
           //NumbersWidget(),
-          buildAbout(user),
+          //buildAbout(){},
         ],
       ),
     );
   }
 
 
-  Widget buildName(User user) => Column(
+  Widget buildName(UserProfile user) => Column(
         children: [
           Text(
-            user.name,
+            user.getFullName!,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
           ),
           const SizedBox(height: 4),
           Text(
-            user.email,
+            user.getEmail!,
             style: const TextStyle(color: Colors.grey),
           )
         ],
@@ -114,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
     onClicked: () {},
   );
 
-  Widget buildAbout(User user) => Container(
+  Widget buildAbout(UserProfile user) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 48),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 16),
             Text(
-              user.about,
+              user.getAbout!,
               style: const TextStyle(fontSize: 16, height: 1.4),
             ),
           ],
