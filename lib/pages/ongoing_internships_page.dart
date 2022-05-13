@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/pages/add_new_internship_page.dart';
 import 'package:mysql1/mysql1.dart';
 
 import '../models/internship.dart';
@@ -83,7 +84,11 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                           backgroundColor: Colors.purple,
                           radius: 30,
                         ),
-                        title: Text(snapshot.data![idx].getTitle!),
+                        title: Text(
+                          snapshot.data![idx].getTitle!,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                         subtitle: Text(
                           snapshot.data![idx].getDescription!,
                           overflow: TextOverflow.ellipsis,
@@ -94,7 +99,18 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                // add the current internship to the page
+                                // arguments that will be sent to the edit page
+                                var editPageArgs =
+                                    Map<String, dynamic>.from(widget._pageArgs);
+                                editPageArgs['internship'] =
+                                    snapshot.data![idx];
+                                Navigator.of(context).pushNamed(
+                                  AddNewInternshipPage.namedRoute,
+                                  arguments: editPageArgs,
+                                );
+                              },
                               icon: const Icon(Icons.edit_outlined),
                               splashRadius: 25,
                             ),

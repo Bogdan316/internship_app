@@ -23,7 +23,7 @@ class InternshipsMainPage extends StatelessWidget {
       ),
       drawer: const MainDrawer(),
       body: Text(
-        crtUser.toString(),
+        args.toString(),
       ),
     );
   }

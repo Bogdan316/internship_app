@@ -27,6 +27,7 @@ class Internship {
   int? _companyId;
   String? _title;
   String? _description;
+  String? _requirements;
   DateTime? _fromDate;
   DateTime? _toDate;
   int? _participantsNum;
@@ -38,6 +39,7 @@ class Internship {
     required int? companyId,
     required String? title,
     required String? description,
+    required String? requirements,
     required DateTime? fromDate,
     required DateTime? toDate,
     required int? participantsNum,
@@ -47,6 +49,7 @@ class Internship {
         _companyId = companyId,
         _title = title,
         _description = description,
+        _requirements = requirements,
         _fromDate = fromDate!.toUtc(),
         _toDate = toDate!.toUtc(),
         _participantsNum = participantsNum,
@@ -58,6 +61,7 @@ class Internship {
     _companyId = obj['companyId'] as int;
     _title = obj['title'] as String;
     _description = obj['description'] as String;
+    _requirements = obj['requirements'] as String;
     _fromDate = (obj['fromDate'] as DateTime).toUtc();
     _toDate = (obj['toDate'] as DateTime).toUtc();
     _participantsNum = obj['participantsNum'] as int;
@@ -72,19 +76,12 @@ class Internship {
   DateTime? get getToDate => _toDate;
   DateTime? get getFromDate => _fromDate;
   String? get getDescription => _description;
+  String? get getRequirements => _requirements;
   String? get getTitle => _title;
   int? get getCompanyId => _companyId;
 
   set setId(int? id) {
     _id = id;
-  }
-
-  @override
-  String toString() {
-    return 'Internship{_id: $_id, _companyId: $_companyId, _title: $_title, '
-        '_description: $_description, _fromDate: $_fromDate, _toDate: $_toDate, '
-        '_participantsNum: $_participantsNum, _tag: $_tag, '
-        '_isOngoing: $_isOngoing}';
   }
 
   Map<String, dynamic> toMap() {
@@ -93,6 +90,7 @@ class Internship {
     internshipMap['companyId'] = _companyId;
     internshipMap['title'] = _title;
     internshipMap['description'] = _description;
+    internshipMap['requirements'] = _requirements;
     internshipMap['fromDate'] = _fromDate;
     internshipMap['toDate'] = _toDate;
     internshipMap['participantsNum'] = _participantsNum;
@@ -110,6 +108,7 @@ class Internship {
           _companyId == other._companyId &&
           _title == other._title &&
           _description == other._description &&
+          _requirements == other._requirements &&
           _fromDate == other._fromDate &&
           _toDate == other._toDate &&
           _participantsNum == other._participantsNum &&
@@ -122,9 +121,19 @@ class Internship {
       _companyId.hashCode ^
       _title.hashCode ^
       _description.hashCode ^
+      _requirements.hashCode ^
       _fromDate.hashCode ^
       _toDate.hashCode ^
       _participantsNum.hashCode ^
       _tag.hashCode ^
       _isOngoing.hashCode;
+
+  @override
+  String toString() {
+    return 'Internship{_id: $_id, _companyId: $_companyId, _title: $_title, '
+        '_description: $_description, _requirements: $_requirements, '
+        '_fromDate: $_fromDate, _toDate: $_toDate, '
+        '_participantsNum: $_participantsNum, _tag: $_tag, '
+        '_isOngoing: $_isOngoing}';
+  }
 }

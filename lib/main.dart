@@ -36,23 +36,23 @@ class InternshipApp extends StatelessWidget {
       home: LoginPage(_userService),
       onGenerateRoute: (settings) {
         final args = settings.arguments as Map<String, dynamic>;
-        var routes = <String, Widget>{
-          OngoingInternshipsPage.namedRoute:
+
+        var routes = <String, WidgetBuilder>{
+          OngoingInternshipsPage.namedRoute: (ctx) =>
               OngoingInternshipsPage(args, InternshipService(BaseDao())),
+          AddNewInternshipPage.namedRoute: (ctx) =>
+              AddNewInternshipPage(args, InternshipService(BaseDao())),
         };
+
         return MaterialPageRoute(
           builder: (context) {
-            return routes[settings.name]!;
+            return routes[settings.name]!(context);
           },
         );
       },
       routes: {
         CreateUserProfilePage.namedRoute: (_) => const CreateUserProfilePage(),
         InternshipsMainPage.namedRoute: (_) => const InternshipsMainPage(),
-        AddNewInternshipPage.namedRoute: (_) =>
-            AddNewInternshipPage(InternshipService(BaseDao())),
-        // OngoingInternshipsPage.namedRoute: (_) =>
-        //     OngoingInternshipsPage(InternshipService(BaseDao())),
       },
     );
   }

@@ -108,18 +108,18 @@ class CustomFormField extends StatelessWidget {
   final void Function()? onTap;
   final String? Function(String?)? validator;
 
-  const CustomFormField(
-      {required this.labelText,
-      required this.autovalidate,
-      this.onTap,
-      this.icon,
-      this.controller,
-      this.color,
-      this.minLines,
-      this.maxLines = 1,
-      this.validator,
-      Key? key})
-      : super(key: key);
+  const CustomFormField({
+    required this.labelText,
+    required this.autovalidate,
+    this.onTap,
+    this.icon,
+    this.controller,
+    this.color,
+    this.minLines,
+    this.maxLines = 1,
+    this.validator,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -179,15 +179,21 @@ class CustomTagDropDownFormField extends StatelessWidget {
   // to be used as a form field
   final bool autovalidate;
   final void Function(Tag?)? onSaved;
-  const CustomTagDropDownFormField(
-      {required this.autovalidate, required this.onSaved, Key? key})
-      : super(key: key);
+  final Tag? value;
+
+  const CustomTagDropDownFormField({
+    required this.autovalidate,
+    required this.onSaved,
+    this.value,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 15, 0, 10),
       child: DropdownButtonFormField<Tag>(
+        value: value,
         // if the validation condition is not met this ternary operator
         // ensures that the error message disappears once the user
         // selects another value
@@ -244,7 +250,10 @@ class AddNewInternshipPage extends StatefulWidget {
   static const String namedRoute = '/add-new-internship-page';
 
   final InternshipService _internshipService;
-  const AddNewInternshipPage(this._internshipService, {Key? key})
+  final Map<String, dynamic> _pageArgs;
+
+  const AddNewInternshipPage(this._pageArgs, this._internshipService,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -268,6 +277,20 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
   double? _participantsNum;
   Tag? _internshipTag;
 
+  // the current company accessing the page
+  late Company crtCompany;
+  late Internship? _crtInternship;
+
+  @override
+  void initState() {
+    super.initState();
+    crtCompany = widget._pageArgs['user'] as Company;
+    _crtInternship = widget._pageArgs.containsKey('internship')
+        ? widget._pageArgs['internship'] as Internship
+        : null;
+    _fillCrtInternshipData();
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -278,11 +301,22 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
     _toDateCtr.dispose();
   }
 
+  void _fillCrtInternshipData() {
+    if (_crtInternship != null) {
+      _titleCtr.text = _crtInternship!.getTitle!;
+      _descriptionCtr.text = _crtInternship!.getDescription!;
+      _requirementsCtr.text = _crtInternship!.getRequirements!;
+      _fromDateCtr.text =
+          DateFormat('dd/MM/yyyy').format(_crtInternship!.getFromDate!);
+      _toDateCtr.text =
+          DateFormat('dd/MM/yyyy').format(_crtInternship!.getToDate!);
+      _participantsNum = _crtInternship!.getParticipantsNum!.toDouble();
+      _internshipTag = _crtInternship!.getTag!;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // the current company accessing the page
-    var crtCompany = ModalRoute.of(context)!.settings.arguments as Company;
-
     return GestureDetector(
       // ensures that when the user taps outside a FormField the
       // FormFiled will lose focus
@@ -318,6 +352,9 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                     maxLines: 50,
                   ),
                   ParticipantsSlider(
+                    initialValue: _crtInternship != null
+                        ? _crtInternship!.getParticipantsNum!.toDouble()
+                        : 0,
                     autovalidate: _autovalidate,
                     context: context,
                     onSaved: (val) => _participantsNum = val,
@@ -375,6 +412,8 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                     },
                   ),
                   CustomTagDropDownFormField(
+                    value:
+                        _crtInternship != null ? _crtInternship!.getTag : null,
                     autovalidate: _autovalidate,
                     onSaved: (val) => _internshipTag = val,
                   ),
@@ -390,6 +429,7 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                             companyId: crtCompany.getUserId,
                             title: _titleCtr.text,
                             description: _descriptionCtr.text,
+                            requirements: _requirementsCtr.text,
                             fromDate: DateFormat('dd/MM/yyyy')
                                 .parse(_fromDateCtr.text),
                             toDate:
@@ -398,8 +438,15 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                             tag: _internshipTag,
                             isOngoing: true,
                           );
-                          await widget._internshipService
-                              .addInternship(internship);
+
+                          if (_crtInternship != null) {
+                            internship.setId = _crtInternship!.getId;
+                            await widget._internshipService
+                                .updateInternship(internship);
+                          } else {
+                            await widget._internshipService
+                                .addInternship(internship);
+                          }
 
                           // reset the form
                           _formKey.currentState!.reset();
@@ -415,6 +462,11 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                             _internshipTag = null;
                             _autovalidate = false;
                           });
+
+                          if (_crtInternship != null) {
+                            _crtInternship = internship;
+                            _fillCrtInternshipData();
+                          }
                         } else {
                           setState(() {
                             _autovalidate = true;

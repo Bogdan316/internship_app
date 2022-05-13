@@ -5,6 +5,9 @@ import '../models/internship.dart';
 import '../models/user.dart';
 
 class InternshipService {
+  // Class used for communicating with the Internship table from
+  // the main db
+
   final BaseDao _dao;
 
   InternshipService(this._dao);
@@ -18,7 +21,7 @@ class InternshipService {
     try {
       assert(internship.getId == null);
       results = await dbConn.query(
-          "INSERT INTO Internship VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+          "INSERT INTO Internship VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
           internship.toMap().values.toList());
     } on MySqlException {
       rethrow;
@@ -57,6 +60,27 @@ class InternshipService {
     try {
       await dbConn
           .query('DELETE FROM Internship where id = ?;', [internship.getId]);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+  }
+
+  Future<void> updateInternship(Internship internship) async {
+    // Deletes the provided internship from the database
+
+    final MySqlConnection dbConn = await _dao.initDb;
+
+    try {
+      var queryValues = internship.toMap().values.toList().sublist(1);
+      queryValues.add(internship.getId);
+      print(queryValues);
+      await dbConn.query(
+          'UPDATE Internship SET `companyId` = ?, `title` = ?, '
+          '`description` = ?, `requirements` = ?, `fromDate` = ?, `toDate` = ?, '
+          '`participantsNum` = ?, `tag` = ?, `isOngoing` = ? WHERE `id` = ?;',
+          queryValues);
     } on MySqlException {
       rethrow;
     } finally {
