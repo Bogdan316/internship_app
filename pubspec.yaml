@@ -32,15 +32,26 @@ dependencies:
 
   #persist locally data
   shared_preferences: ^2.0.13
-  firebase_core: ^1.0.3
+  #firebase_core: ^1.0.3
   firebase_storage: ^8.0.3
+
+#
+  firebase_core:
+  google_sign_in:
+#
 
   file_picker: ^3.0.1
 
-  font_awesome_flutter: ^9.0.0-nullsafety
+  font_awesome_flutter: ^10.0.0-nullsafety
+
+  #image cropper
+  image_cropper: ^1.4.1
 
   #pick image
-  image_picker: ^0.7.4
+  image_picker: ^0.8.1
+
+  #compressimage:
+  flutter_image_compress: ^1.0.0 #-nullsafety
 
   #store image
   path_provider: ^2.0.1

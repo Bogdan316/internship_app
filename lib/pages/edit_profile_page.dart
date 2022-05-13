@@ -1,5 +1,6 @@
 import 'package:internship_app_fis/pages/profile_page.dart';
 
+import '../base_widgets/user_image.dart';
 import '../models/user.dart';
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
@@ -17,6 +18,7 @@ import './firebase_api.dart';
 import '/services/user_profile_service.dart';
 import '/models/user_profile.dart';
 import 'package:internship_app_fis/models/user_profile.dart';
+import 'dart:developer';
 
 class EditProfilePage extends StatefulWidget {
   static const String namedRoute = '/edit_profile_page.dart';//'/create-user-profile';
@@ -36,6 +38,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late UserProfileService _userProfile; //final
   UploadTask? task;
   File? file;
+  //
+  String imageUrl = '';
 
   //final String _userRole;
   late UserProfileService _userService;// = UserProfileService.getUserProfileById;
@@ -55,16 +59,40 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: ListView(
+    body:
+    ///
+    GestureDetector(
+      // Ensure that when the user taps the screen the TextFields will unfocus
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child:
+      ///
+      ListView(
       padding:EdgeInsets.symmetric(horizontal: 32),
       physics: BouncingScrollPhysics(),
       children: [
+        UserImage(
+          onFileChanged: (imageUrl){
+            setState((){
+                this.imageUrl = imageUrl;
+                print(imageUrl);
+            });
+          },
+        ),
+        ///
+        GestureDetector(
+  // Ensure that when the user taps the screen the TextFields will unfocus
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child:
         ProfileWidget(
           imagePath: '',
           isEdit: true,
           onClicked: () async {
             final image = await ImagePicker()
-                .getImage(source: ImageSource.gallery);
+                .pickImage(source: ImageSource.gallery); //pick in loc de get
             if (image == null) return;
 
             final directory = await getApplicationDocumentsDirectory();
@@ -74,6 +102,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
             //setState(()=>user = user.copy(imagePath: newImage.path));
           },
         ),
+  ),
+        ///
         const SizedBox(height: 24),
         TextFieldWidget(
           controller: _fullnameCtr,
@@ -140,6 +170,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       ],
     ),
+  ),
   );
 
   Future selectFile() async {
