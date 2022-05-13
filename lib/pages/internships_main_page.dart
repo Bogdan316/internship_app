@@ -10,7 +10,9 @@ class InternshipsMainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final crtUser = ModalRoute.of(context)!.settings.arguments as User;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final crtUser = args['user'] as User;
     final themeData = Theme.of(context);
 
     return Scaffold(
