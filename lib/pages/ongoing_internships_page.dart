@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:internship_app_fis/models/internship.dart';
-import 'package:internship_app_fis/services/internship_service.dart';
+import 'package:mysql1/mysql1.dart';
 
+import '../models/internship.dart';
+import '../services/internship_service.dart';
+import '../base_widgets/custom_snack_bar.dart';
 import '../base_widgets/theme_color.dart';
 import '../models/user.dart';
 
@@ -97,10 +99,19 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                               splashRadius: 25,
                             ),
                             IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  snapshot.data!.removeAt(idx);
-                                });
+                              onPressed: () async {
+                                try {
+                                  await widget._internshipService
+                                      .deleteInternship(snapshot.data![idx]);
+                                  setState(() {
+                                    snapshot.data!.removeAt(idx);
+                                  });
+                                } on MySqlException {
+                                  final snackBar = MessageSnackBar(
+                                      'We could not delete this internship, try again later.');
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(snackBar);
+                                }
                               },
                               icon: const Icon(Icons.delete_outline),
                               color: themeData.errorColor,
@@ -112,6 +123,7 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                     ),
                   );
                 } else {
+                  // show a placeholder if there are no ongoing internships
                   return LayoutBuilder(
                     builder: (ctx, constraints) => Container(
                       margin: const EdgeInsets.all(20),

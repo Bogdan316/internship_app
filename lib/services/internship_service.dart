@@ -10,6 +10,8 @@ class InternshipService {
   InternshipService(this._dao);
 
   Future<void> addInternship(Internship internship) async {
+    // Adds the provided internship in the database
+
     final MySqlConnection dbConn = await _dao.initDb;
     final Results results;
 
@@ -28,6 +30,9 @@ class InternshipService {
   }
 
   Future<List<Internship>> getAllCompanyInternships(Company company) async {
+    // Returns a future containing a list of internships for the provided
+    // company id
+
     final MySqlConnection dbConn = await _dao.initDb;
     final Results results;
 
@@ -45,6 +50,8 @@ class InternshipService {
   }
 
   Future<void> deleteInternship(Internship internship) async {
+    // Deletes the provided internship from the database
+
     final MySqlConnection dbConn = await _dao.initDb;
 
     try {

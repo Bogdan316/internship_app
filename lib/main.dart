@@ -10,7 +10,6 @@ import '../pages/login_page.dart';
 import '../services/user_service.dart';
 import '../pages/add_new_internship_page.dart';
 import '../services/internship_service.dart';
-import 'models/user.dart';
 
 final internshipApp = InternshipApp(UserService(BaseDao()));
 
@@ -46,8 +45,6 @@ class InternshipApp extends StatelessWidget {
             return routes[settings.name]!;
           },
         );
-
-        return null;
       },
       routes: {
         CreateUserProfilePage.namedRoute: (_) => const CreateUserProfilePage(),
