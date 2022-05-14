@@ -26,19 +26,6 @@ MaterialColor createMaterialColor(Color color) {
 }
 
 class ColorUtil {
-  static Color darkenColor(Color c, [double percent = 0.1]) {
-    // Returns a darker shade of the color argument by a given percent
-
-    assert(0 <= percent && percent <= 1);
-    var f = 1 - percent;
-    return Color.fromARGB(
-      c.alpha,
-      (c.red * f).round(),
-      (c.green * f).round(),
-      (c.blue * f).round(),
-    );
-  }
-
   static Color lightenColor(Color c, [double percent = 0.1]) {
     // Returns a lighter shade of the color argument by a given percent
 
