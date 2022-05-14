@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
+import 'package:mysql1/mysql1.dart';
 
 import '../base_widgets/custom_elevated_button.dart';
+import '../base_widgets/custom_snack_bar.dart';
 import '../services/internship_service.dart';
 import '../models/internship.dart';
 import '../models/user.dart';
@@ -279,12 +281,14 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
 
   // the current company accessing the page
   late Company crtCompany;
+  // the current internship that is being edited
   late Internship? _crtInternship;
 
   @override
   void initState() {
     super.initState();
     crtCompany = widget._pageArgs['user'] as Company;
+    // check if an internship has been sent from the previous page
     _crtInternship = widget._pageArgs.containsKey('internship')
         ? widget._pageArgs['internship'] as Internship
         : null;
@@ -302,16 +306,20 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
   }
 
   void _fillCrtInternshipData() {
+    // If an internship was sent to this page then its fields values are
+    // used as default values for the input fields
     if (_crtInternship != null) {
-      _titleCtr.text = _crtInternship!.getTitle!;
-      _descriptionCtr.text = _crtInternship!.getDescription!;
-      _requirementsCtr.text = _crtInternship!.getRequirements!;
-      _fromDateCtr.text =
-          DateFormat('dd/MM/yyyy').format(_crtInternship!.getFromDate!);
-      _toDateCtr.text =
-          DateFormat('dd/MM/yyyy').format(_crtInternship!.getToDate!);
-      _participantsNum = _crtInternship!.getParticipantsNum!.toDouble();
-      _internshipTag = _crtInternship!.getTag!;
+      setState(() {
+        _titleCtr.text = _crtInternship!.getTitle!;
+        _descriptionCtr.text = _crtInternship!.getDescription!;
+        _requirementsCtr.text = _crtInternship!.getRequirements!;
+        _fromDateCtr.text =
+            DateFormat('dd/MM/yyyy').format(_crtInternship!.getFromDate!);
+        _toDateCtr.text =
+            DateFormat('dd/MM/yyyy').format(_crtInternship!.getToDate!);
+        _participantsNum = _crtInternship!.getParticipantsNum!.toDouble();
+        _internshipTag = _crtInternship!.getTag!;
+      });
     }
   }
 
@@ -323,7 +331,9 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('New Internship'),
+          title: _crtInternship != null
+              ? const Text('Edit Internship')
+              : const Text('New Internship'),
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -352,6 +362,11 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                     maxLines: 50,
                   ),
                   ParticipantsSlider(
+                    // if an internship is sent to the page then
+                    // a unique key is used so the slider is rebuilt
+                    // after the new value is set this way the default
+                    // initial value is updated
+                    key: _crtInternship != null ? UniqueKey() : null,
                     initialValue: _crtInternship != null
                         ? _crtInternship!.getParticipantsNum!.toDouble()
                         : 0,
@@ -417,8 +432,9 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                     autovalidate: _autovalidate,
                     onSaved: (val) => _internshipTag = val,
                   ),
+                  // submit button
                   Container(
-                    margin: const EdgeInsets.fromLTRB(0, 30, 0, 15),
+                    margin: const EdgeInsets.fromLTRB(0, 30, 0, 35),
                     child: CustomElevatedButton(
                       label: 'Submit',
                       primary: Theme.of(context).primaryColorDark,
@@ -431,18 +447,33 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                             description: _descriptionCtr.text,
                             requirements: _requirementsCtr.text,
                             fromDate: DateFormat('dd/MM/yyyy')
-                                .parse(_fromDateCtr.text),
-                            toDate:
-                                DateFormat('dd/MM/yyyy').parse(_toDateCtr.text),
+                                .parseUtc(_fromDateCtr.text),
+                            toDate: DateFormat('dd/MM/yyyy')
+                                .parseUtc(_toDateCtr.text),
                             participantsNum: _participantsNum!.round(),
                             tag: _internshipTag,
                             isOngoing: true,
                           );
 
                           if (_crtInternship != null) {
+                            // if an internship is present the update it
+                            // in the database
                             internship.setId = _crtInternship!.getId;
-                            await widget._internshipService
-                                .updateInternship(internship);
+                            try {
+                              await widget._internshipService
+                                  .updateInternship(internship);
+                              final snackBar = MessageSnackBar(
+                                'The internship has been updated.',
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            } on MySqlException {
+                              final snackBar = MessageSnackBar(
+                                'Something went wrong, try again later.',
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }
                           } else {
                             await widget._internshipService
                                 .addInternship(internship);
@@ -461,12 +492,12 @@ class _AddNewInternshipPageState extends State<AddNewInternshipPage> {
                             _participantsNum = null;
                             _internshipTag = null;
                             _autovalidate = false;
+                            // updates the current internship object
+                            if (_crtInternship != null) {
+                              _crtInternship = internship;
+                              _fillCrtInternshipData();
+                            }
                           });
-
-                          if (_crtInternship != null) {
-                            _crtInternship = internship;
-                            _fillCrtInternshipData();
-                          }
                         } else {
                           setState(() {
                             _autovalidate = true;

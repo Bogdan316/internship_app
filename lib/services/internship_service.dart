@@ -75,7 +75,6 @@ class InternshipService {
     try {
       var queryValues = internship.toMap().values.toList().sublist(1);
       queryValues.add(internship.getId);
-      print(queryValues);
       await dbConn.query(
           'UPDATE Internship SET `companyId` = ?, `title` = ?, '
           '`description` = ?, `requirements` = ?, `fromDate` = ?, `toDate` = ?, '

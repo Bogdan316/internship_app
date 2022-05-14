@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:internship_app_fis/pages/add_new_internship_page.dart';
 import 'package:mysql1/mysql1.dart';
 
 import '../models/internship.dart';
@@ -7,6 +7,7 @@ import '../services/internship_service.dart';
 import '../base_widgets/custom_snack_bar.dart';
 import '../base_widgets/theme_color.dart';
 import '../models/user.dart';
+import '../pages/add_new_internship_page.dart';
 
 class OngoingInternshipsPage extends StatefulWidget {
   // Page holding the internships of the current company
@@ -27,10 +28,18 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
   late Future<List<Internship>> _ongoingInternships;
   late Company _crtCompany;
 
+  FutureOr _updateOngoingInternshipsList(dynamic value) {
+    // Updates the list of internships
+    setState(() {
+      _ongoingInternships =
+          widget._internshipService.getAllCompanyInternships(_crtCompany);
+    });
+  }
+
   @override
   void initState() {
-    // when the screen is loaded, fetch all the internships for the
-    // current company as a future
+    // when the screen is loaded for the first time, fetch all the internships
+    // for the current company as a future
     super.initState();
     _crtCompany = widget._pageArgs['user'] as Company;
     _ongoingInternships =
@@ -69,6 +78,8 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                       ),
                       child: ListTile(
                         // the unique id from the database is used as a key
+                        // to ensure that the tiles are rebuilt after one
+                        // of them is deleted
                         key: Key(snapshot.data![idx].getId!.toString()),
                         iconColor: themeData.primaryColorDark,
                         tileColor:
@@ -98,6 +109,7 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            // edit button
                             IconButton(
                               onPressed: () {
                                 // add the current internship to the page
@@ -106,14 +118,19 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                                     Map<String, dynamic>.from(widget._pageArgs);
                                 editPageArgs['internship'] =
                                     snapshot.data![idx];
-                                Navigator.of(context).pushNamed(
-                                  AddNewInternshipPage.namedRoute,
-                                  arguments: editPageArgs,
-                                );
+                                // when the user comes back from the edit
+                                // page all the internships are updated again
+                                Navigator.of(context)
+                                    .pushNamed(
+                                      AddNewInternshipPage.namedRoute,
+                                      arguments: editPageArgs,
+                                    )
+                                    .then(_updateOngoingInternshipsList);
                               },
                               icon: const Icon(Icons.edit_outlined),
                               splashRadius: 25,
                             ),
+                            // delete button
                             IconButton(
                               onPressed: () async {
                                 try {
