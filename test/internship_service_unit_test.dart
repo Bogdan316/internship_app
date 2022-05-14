@@ -35,6 +35,7 @@ void main() {
         companyId: 1,
         title: 'test',
         description: 'test',
+        requirements: 'test',
         fromDate: now.toUtc(),
         toDate: now.toUtc(),
         participantsNum: 10,
@@ -47,7 +48,7 @@ void main() {
       when(mockBaseDao.initDb)
           .thenAnswer((_) => Future.value(mockMySqlConnection));
       when(mockMySqlConnection.query(
-              "INSERT INTO Internship VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+              "INSERT INTO Internship VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
               testInter.toMap().values.toList()))
           .thenAnswer((_) => Future.value(mockResults));
 
@@ -59,14 +60,14 @@ void main() {
 
       testInter.setId = null;
       verify(mockMySqlConnection.query(
-          "INSERT INTO Internship VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+          "INSERT INTO Internship VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
           testInter.toMap().values.toList()));
     });
     test('addInternship should throw MySqlException', () {
       when(mockBaseDao.initDb)
           .thenAnswer((_) => Future.value(mockMySqlConnection));
       when(mockMySqlConnection.query(
-              "INSERT INTO Internship VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+              "INSERT INTO Internship VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
               testInter.toMap().values.toList()))
           .thenAnswer((_) => throw const SocketException('Test exception'));
 
