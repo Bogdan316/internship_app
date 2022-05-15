@@ -41,27 +41,27 @@ class _ProfilePageState extends State<ProfilePage> {
           //Needs Stack(
           Stack(
             clipBehavior: Clip.none,
-          alignment: Alignment.center,
-          children: [
-            buildCoverImage(),
-          Positioned(
-            top: top,
-            child:
-            Container(
-              margin: const EdgeInsets.only(bottom: bottom),
-            child:
-            ProfileWidget(
-            imagePath: '',
-            onClicked: () async {
-              //await Navigator.of(context).push(
-                //MaterialPageRoute(builder: (context) => EditProfilePage()),
-              //);
-              setState((){});
-            },
-          ),
-          ),
-          ),
-          ],
+            alignment: Alignment.center,
+            children: [
+              buildCoverImage(),
+              Positioned(
+                top: top,
+                child:
+                Container(
+                  margin: const EdgeInsets.only(bottom: bottom),
+                  child:
+                  ProfileWidget(
+                    imagePath: '',
+                    onClicked: () async {
+                      //await Navigator.of(context).push(
+                      //MaterialPageRoute(builder: (context) => EditProfilePage()),
+                      //);
+                      setState((){});
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 80),
           buildName(crtUser),
@@ -93,23 +93,23 @@ class _ProfilePageState extends State<ProfilePage> {
 
 
   Widget buildName(UserProfile user) => Column(
-        children: [
-          Text(
-            user.getFullName!,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            user.getEmail!,
-            style: const TextStyle(color: Colors.grey),
-          )
-        ],
-      );
+    children: [
+      Text(
+        user.getFullName!,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        user.getEmail!,
+        style: const TextStyle(color: Colors.grey),
+      )
+    ],
+  );
 
   Widget buildUpgradeButton() => ButtonWidget(
-        text: 'Repository',
-        onClicked: () {},
-      );
+    text: 'Repository',
+    onClicked: () {},
+  );
 
   Widget buildDownloadButton() => ButtonWidgetDownload(
     text: 'CV',
@@ -117,22 +117,22 @@ class _ProfilePageState extends State<ProfilePage> {
   );
 
   Widget buildAbout(UserProfile user) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 48),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'About',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              user.getAbout!,
-              style: const TextStyle(fontSize: 16, height: 1.4),
-            ),
-          ],
+    padding: const EdgeInsets.symmetric(horizontal: 48),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'About',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-      );
+        const SizedBox(height: 16),
+        Text(
+          user.getAbout!,
+          style: const TextStyle(fontSize: 16, height: 1.4),
+        ),
+      ],
+    ),
+  );
 
   buildCoverImage() => Container(
     color: Colors.grey,
@@ -140,8 +140,8 @@ class _ProfilePageState extends State<ProfilePage> {
       //'https://res.cloudinary.com/demo/image/facebook/65646572251.jpg',
       'https://www.dior.com/couture/var/dior/storage/images/folder-media/folder-videos/folder-parfums/diorparfums_sauvage_dior_gon/25659534-8-int-EN/diorparfums_sauvage_dior_gon_1440_1200.jpg',
       width: double.infinity,
-        height: coverHeight,
-        fit: BoxFit.cover,
+      height: coverHeight,
+      fit: BoxFit.cover,
     ),
   );
 

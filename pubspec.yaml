@@ -30,17 +30,15 @@ dependencies:
   flutter:
     sdk: flutter
 
-  #persist locally data
-  shared_preferences: ^2.0.13
+
   #firebase_core: ^1.0.3
-  firebase_storage: ^8.0.3
-
-#
+  #persist locally data
+  shared_preferences:
   firebase_core:
-  google_sign_in:
-#
+  firebase_storage:
+  file_picker:
 
-  file_picker: ^3.0.1
+  google_sign_in:
 
   font_awesome_flutter: ^10.0.0-nullsafety
 

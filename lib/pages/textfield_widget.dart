@@ -8,20 +8,20 @@ class TextFieldWidget extends StatefulWidget{
   final TextEditingController controller;
 
   const TextFieldWidget({
-  Key? key,
-  this.maxLines = 1,
-  required this.label,
-  required this.text,
-  required this.onChanged,
+    Key? key,
+    this.maxLines = 1,
+    required this.label,
+    required this.text,
+    required this.onChanged,
     required this.controller,
-}) : super(key: key);
+  }) : super(key: key);
 
   @override
   _TextFieldWidgetState createState() => _TextFieldWidgetState();
 }
 
 class _TextFieldWidgetState extends State<TextFieldWidget> {
- // late final TextEditingController controller;
+  // late final TextEditingController controller;
 
   /*
   @override
@@ -51,8 +51,8 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
         controller: widget.controller,
         decoration: InputDecoration(
           border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         maxLines: widget.maxLines,
         onChanged: widget.onChanged,

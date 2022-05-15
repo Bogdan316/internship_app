@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 
-class ProfileWidget extends StatelessWidget{
-  final String imagePath;
+class ProfileWidget extends StatelessWidget {
+  final String? imagePath;
   final bool isEdit;
   final VoidCallback onClicked;
 
@@ -12,7 +12,7 @@ class ProfileWidget extends StatelessWidget{
     required this.imagePath,
     this.isEdit = false,
     required this.onClicked,
-}) : super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,27 +23,35 @@ class ProfileWidget extends StatelessWidget{
         children: [
           buildImage(),
           Positioned(
-            bottom:0,
+            bottom: 0,
             right: 4,
             child: buildEditIcon(color),
           ),
-      ],
+        ],
       ),
     );
   }
 
-  Widget buildImage(){
-    final image = imagePath.contains('https://')
-    ? NetworkImage(imagePath)
-    : FileImage(File(imagePath));
+  Widget buildImage() {
+    Object? image;
+    if (imagePath != null) {
+      image = imagePath!.contains('https://')
+          ? NetworkImage(imagePath!)
+          : FileImage(File(imagePath!));
+    }
 
     return ClipOval(
       child: Material(
-        //Adaugat acum
-
-
         color: Colors.transparent,
-        child: Ink.image(
+        child: imagePath == null
+            ? InkWell(
+          onTap: onClicked,
+          child: const Icon(
+            Icons.person_outline_outlined,
+            size: 128,
+          ),
+        )
+            : Ink.image(
           image: image as ImageProvider,
           fit: BoxFit.cover,
           width: 128,
@@ -55,30 +63,29 @@ class ProfileWidget extends StatelessWidget{
   }
 
   Widget buildEditIcon(Color color) => buildCircle(
-      color: Colors.white,
-      all: 3,
-      child: buildCircle(
-        color: color,
-        all: 8,
-        child: Icon(
+    color: Colors.white,
+    all: 3,
+    child: buildCircle(
+      color: color,
+      all: 8,
+      child: Icon(
         isEdit ? Icons.add_a_photo : Icons.edit,
         color: Colors.white,
         size: 20,
-        ),
-        ),
+      ),
+    ),
   );
 
   Widget buildCircle({
     required Widget child,
     required double all,
-  required Color color,
+    required Color color,
   }) =>
       ClipOval(
-        child:Container(
+        child: Container(
           padding: EdgeInsets.all(all),
           color: color,
           child: child,
         ),
-  );
-
+      );
 }

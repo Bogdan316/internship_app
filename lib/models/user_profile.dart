@@ -18,11 +18,11 @@ abstract class UserProfile {
     required String? email,
     required String? repo,
     required String? about,}): _id=id,
-  _userId=userId,
-  _fullname = fullname,
-  _email =email,
-  _repo =repo,
-  _about = about;
+        _userId=userId,
+        _fullname = fullname,
+        _email =email,
+        _repo =repo,
+        _about = about;
 
   int? get getId => _id;
 
@@ -100,11 +100,11 @@ class StudentProfile extends UserProfile{
 
   StudentProfile(
       {int? id,
-      int? userId,
-      String? fullname,
-      String? email,
-      String? repo,
-      String? about})
+        int? userId,
+        String? fullname,
+        String? email,
+        String? repo,
+        String? about})
       : super(id:id, userId:userId, fullname:fullname, email:email, repo:repo, about:about);
   StudentProfile.fromMap(dynamic obj) : super.fromMap(obj);
 }
