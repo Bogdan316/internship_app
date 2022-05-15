@@ -125,7 +125,7 @@ class _LoginTabState extends State<LoginTab> {
                               if (crtUser != null) {
                                 Navigator.of(context).pushReplacementNamed(
                                   InternshipsMainPage.namedRoute,
-                                  arguments: crtUser,
+                                  arguments: <String, dynamic>{'user': crtUser},
                                 );
                               }
                             },
@@ -151,7 +151,7 @@ class _LoginTabState extends State<LoginTab> {
                   if (crtUser != null) {
                     Navigator.of(context).pushReplacementNamed(
                       CreateUserProfilePage.namedRoute,
-                      arguments: crtUser,
+                      arguments: <String, dynamic>{'user': crtUser},
                     );
                   }
                 },

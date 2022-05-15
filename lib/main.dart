@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:internship_app_fis/pages/ongoing_internships_page.dart';
 
 import '../base_widgets/theme_color.dart';
 import '../dao/base_dao.dart';
@@ -33,11 +34,25 @@ class InternshipApp extends StatelessWidget {
         ),
       ),
       home: LoginPage(_userService),
+      onGenerateRoute: (settings) {
+        final args = settings.arguments as Map<String, dynamic>;
+
+        var routes = <String, WidgetBuilder>{
+          OngoingInternshipsPage.namedRoute: (ctx) =>
+              OngoingInternshipsPage(args, InternshipService(BaseDao())),
+          AddNewInternshipPage.namedRoute: (ctx) =>
+              AddNewInternshipPage(args, InternshipService(BaseDao())),
+        };
+
+        return MaterialPageRoute(
+          builder: (context) {
+            return routes[settings.name]!(context);
+          },
+        );
+      },
       routes: {
         CreateUserProfilePage.namedRoute: (_) => const CreateUserProfilePage(),
         InternshipsMainPage.namedRoute: (_) => const InternshipsMainPage(),
-        AddNewInternshipPage.namedRoute: (_) =>
-            AddNewInternshipPage(InternshipService(BaseDao())),
       },
     );
   }
