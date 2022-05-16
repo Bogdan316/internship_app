@@ -52,7 +52,7 @@ class InternshipApp extends StatelessWidget {
           AddNewInternshipPage.namedRoute: (ctx) =>
               AddNewInternshipPage(args, InternshipService(BaseDao())),
           InternshipsMainPage.namedRoute: (_) =>
-          InternshipsMainPage(/*args,InternshipService(BaseDao())*/),
+          InternshipsMainPage(args,InternshipService(BaseDao())),
         };
 
         return MaterialPageRoute(
