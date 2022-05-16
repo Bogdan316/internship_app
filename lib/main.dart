@@ -53,6 +53,8 @@ class InternshipApp extends StatelessWidget {
               AddNewInternshipPage(args, InternshipService(BaseDao())),
           InternshipsMainPage.namedRoute: (_) =>
           InternshipsMainPage(args,InternshipService(BaseDao())),
+          //ProfilePage.namedRoute: (_) =>
+            //ProfilePage(UserProfileService(BaseDao())),
         };
 
         return MaterialPageRoute(
@@ -64,7 +66,8 @@ class InternshipApp extends StatelessWidget {
       routes: {
         CreateUserProfilePage.namedRoute: (_) =>
             CreateUserProfilePage(UserProfileService(BaseDao())),
-        ProfilePage.namedRoute: (_) => const ProfilePage(),
+        //ProfilePage.namedRoute: (_) =>
+          //  ProfilePage(UserProfileService(BaseDao())),
       },
     );
   }

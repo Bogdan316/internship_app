@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/pages/profile_page.dart';
 
 import '../base_widgets/custom_elevated_button.dart';
 import '../base_widgets/user_input_row.dart';
@@ -124,7 +125,8 @@ class _LoginTabState extends State<LoginTab> {
 
                               if (crtUser != null) {
                                 Navigator.of(context).pushReplacementNamed(
-                                  InternshipsMainPage.namedRoute,
+                                  ProfilePage.namedRoute,
+                                  //InternshipsMainPage.namedRoute,
                                   arguments: <String, dynamic>{'user': crtUser},
                                 );
                               }

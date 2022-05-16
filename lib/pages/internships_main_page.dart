@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/models/user_profile.dart';
 import 'package:mysql1/mysql1.dart';
 
 import '../base_widgets/main_drawer.dart';

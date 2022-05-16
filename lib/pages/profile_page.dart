@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/services/user_profile_service.dart';
+import '../base_widgets/main_drawer.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
@@ -11,7 +13,7 @@ import '/base_widgets/button_widget_download.dart';
 class ProfilePage extends StatefulWidget {
   static const String namedRoute = '/profile_page';//'/create-user-profile';
 
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage(UserProfileService userProfileService, {Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -28,10 +30,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
     final crtUser = ModalRoute.of(context)!.settings.arguments as UserProfile;
     //final user = UserPreferences.getUser();
     return Scaffold(
-      //appBar: buildAppBar(context),
+      appBar: AppBar(
+        elevation: 5,
+        backgroundColor: themeData.primaryColor,
+        title: const Text('Internship App'),
+      ),
+      drawer: const MainDrawer(),
       body:
       ListView(
         physics: const BouncingScrollPhysics(),
