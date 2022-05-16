@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/pages/ongoing_internships_page.dart';
+import 'package:internship_app_fis/pages/profile_page.dart';
 
 import '../base_widgets/theme_color.dart';
 import '../pages/add_new_internship_page.dart';
@@ -66,19 +68,42 @@ class MainDrawer extends StatelessWidget {
   // items that should be showed in the drawer when the user is a company
   final _companyDrawerItems = const [
     {
+      'title': 'My Profile',
+      'route': ProfilePage.namedRoute,
+      'icon': Icons.add_box
+    },
+    {
       'title': 'Add New Internship',
       'route': AddNewInternshipPage.namedRoute,
       'icon': Icons.add_box
     },
+    {
+      'title': 'Ongoing Internships',
+      'route': OngoingInternshipsPage.namedRoute,
+      'icon': Icons.settings
+    }
   ];
 
   // items that should be showed in the drawer when the user is a student
-  final _studentDrawerItems = const [];
+  final _studentDrawerItems = const [
+    {
+      'title': 'My Profile',
+      'route': ProfilePage.namedRoute,
+      'icon': Icons.add_box
+    },
+    {
+      'title': 'My Internships',
+      'route': OngoingInternshipsPage.namedRoute,
+      'icon': Icons.settings
+    }
+  ];
 
   @override
   Widget build(BuildContext context) {
     // get the current user
-    final crtUser = ModalRoute.of(context)!.settings.arguments as User;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final crtUser = args['user'] as User;
     // decides the list that will be showed in the drawer based on the user's
     // role
     final drawerItems = crtUser.runtimeType == Student

@@ -62,22 +62,22 @@ class UserProfileService{
     // Adds a new user to the database, if a user with the same username already
     // exists throws an exception
 
-      final MySqlConnection dbConn = await _dao.initDb;
-      final Results result;
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results result;
 
-      try {
-        print(profile.toMap().values.toList());
-        result = await dbConn.query(
-            "INSERT INTO ${profile.runtimeType} VALUES (?, ?, ?, ?, ?, ?)",
-            profile.toMap().values.toList());
-      } on MySqlException {
-        rethrow;
-      } finally {
-        dbConn.close();
-      }
+    try {
+      print(profile.toMap().values.toList());
+      result = await dbConn.query(
+          "INSERT INTO ${profile.runtimeType} VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+          profile.toMap().values.toList());
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
 
-      // Get the auto_increment id and set it
-      profile.setProfileId(result.insertId!);
+    // Get the auto_increment id and set it
+    profile.setProfileId(result.insertId!);
   }
 }
 

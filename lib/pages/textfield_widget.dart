@@ -23,14 +23,6 @@ class TextFieldWidget extends StatefulWidget{
 class _TextFieldWidgetState extends State<TextFieldWidget> {
   // late final TextEditingController controller;
 
-  /*
-  @override
-  void initState(){
-    super.initState();
-
-    controller = TextEditingController(text: widget.text);
-  }*/
-
   @override
   void dispose(){
     //controller.dispose();

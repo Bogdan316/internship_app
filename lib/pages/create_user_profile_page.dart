@@ -6,8 +6,10 @@ import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
 import 'package:internship_app_fis/pages/firebase_api.dart';
 import 'package:internship_app_fis/pages/profile_widget.dart';
 import '../base_widgets/button_widget_upload.dart';
+import '../base_widgets/custom_snack_bar.dart';
 import '../base_widgets/textfield_widget.dart';
 import '../models/user.dart';
+import '../models/user_profile.dart';
 import '../services/user_profile_service.dart';
 import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart' as storage;
@@ -66,32 +68,32 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
     await showModalBottomSheet(
         context: context,
         builder: (context) => BottomSheet(
-          builder: (context) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                  leading: const Icon(Icons.camera),
-                  title: const Text('Camera'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _pickImage(ImageSource.camera);
-                  }),
-              ListTile(
-                  leading: const Icon(Icons.filter),
-                  title: const Text('Pick a file'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _pickImage(ImageSource.gallery);
-                  }),
-            ],
-          ),
-          onClosing: () {},
-        ));
+              builder: (context) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                      leading: const Icon(Icons.camera),
+                      title: const Text('Camera'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _pickImage(ImageSource.camera);
+                      }),
+                  ListTile(
+                      leading: const Icon(Icons.filter),
+                      title: const Text('Pick a file'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _pickImage(ImageSource.gallery);
+                      }),
+                ],
+              ),
+              onClosing: () {},
+            ));
   }
 
   Future _pickImage(ImageSource source) async {
     final pickedFile =
-    await _picker.pickImage(source: source, imageQuality: 50);
+        await _picker.pickImage(source: source, imageQuality: 50);
 
     if (pickedFile == null) {
       return;
@@ -119,7 +121,9 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final crtUser = ModalRoute.of(context)!.settings.arguments as User;
+    final pageArgs =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final crtUser = pageArgs['user'] as User;
     final themeData = Theme.of(context);
 
     return Scaffold(
@@ -128,84 +132,111 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
         backgroundColor: themeData.primaryColor,
         title: const Text('Create Profile'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        physics: const BouncingScrollPhysics(),
-        children: [
-          // UserImage(
-          //   onFileChanged: (imageUrl) {},
-          // ),
-          const SizedBox(height: 24),
-          GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
-            },
-            child: ProfileWidget(
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          physics: const BouncingScrollPhysics(),
+          children: [
+            const SizedBox(height: 24),
+            ProfileWidget(
               onClicked: () async => _selectPhoto(context),
               imagePath: imagePath,
             ),
-          ),
-          const SizedBox(height: 24),
-          TextFieldWidget(
-            controller: _fullNameCtr,
-            label: 'Full Name',
-            text: '',
-            onChanged: (_) {},
-          ),
-          const SizedBox(height: 24),
-          TextFieldWidget(
-            controller: _emailCtr,
-            label: 'Email',
-            text: '',
-            onChanged: (_) {},
-          ),
-          const SizedBox(height: 24),
-          if (crtUser.runtimeType == Student)
-            Center(
-              child: ButtonWidgetUpload(
-                primary: themeData.primaryColorDark,
-                text: 'Select CV',
-                icon: Icons.attach_file,
-                onClicked: _selectCvFile,
-              ),
-            ),
-          if (_cvFile != null) ...[
             const SizedBox(height: 24),
-            Text(
-              basename(_cvFile!.path),
-              textAlign: TextAlign.center,
+            TextFieldWidget(
+              controller: _fullNameCtr,
+              label: 'Full Name',
+              text: '',
+              onChanged: (_) {},
             ),
+            const SizedBox(height: 24),
+            TextFieldWidget(
+              controller: _emailCtr,
+              label: 'Email',
+              text: '',
+              onChanged: (_) {},
+            ),
+            const SizedBox(height: 24),
+            if (crtUser.runtimeType == Student)
+              Center(
+                child: ButtonWidgetUpload(
+                  primary: themeData.primaryColorDark,
+                  text: 'Select CV',
+                  icon: Icons.attach_file,
+                  onClicked: _selectCvFile,
+                ),
+              ),
+            if (_cvFile != null) ...[
+              const SizedBox(height: 24),
+              Text(
+                basename(_cvFile!.path),
+                textAlign: TextAlign.center,
+              ),
+            ],
+            if (crtUser.runtimeType == Student) ...[
+              const SizedBox(height: 24),
+              TextFieldWidget(
+              controller: _repoLinkCtr,
+              label: 'Repository Link',
+              text: '',
+              onChanged: (_) {},
+            ),
+            ],
+            const SizedBox(height: 24),
+            TextFieldWidget(
+              controller: _aboutCtr,
+              label: 'About',
+              text: '',
+              maxLines: 5,
+              onChanged: (_) {},
+            ),
+            const SizedBox(height: 24),
+            CustomElevatedButton(
+              label: 'Save',
+              onPressed: () async {
+                if (_fullNameCtr.text.isEmpty ||
+                    _aboutCtr.text.isEmpty ||
+                    _emailCtr.text.isEmpty ||
+                    ((_cvFile == null || _repoLinkCtr.text.isEmpty) &&
+                        crtUser.runtimeType != Company) ||
+                    imagePath == null) {
+                  final snackBar = MessageSnackBar('All fields are mandatory!');
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                } else {
+                  await _uploadCvFile(crtUser);
+                  if (imagePath != null) {
+                    await _uploadImageFile(crtUser, imagePath!);
+                  }
+                }
+                var userProfile = crtUser.runtimeType == Student
+                    ? StudentProfile(
+                        id: null,
+                        userId: crtUser.getUserId,
+                        imageLink: _imageUrl,
+                        fullname: _fullNameCtr.text,
+                        email: _emailCtr.text,
+                        cvLink: _cvUrl,
+                        repo: _repoLinkCtr.text,
+                        about: _aboutCtr.text,
+                      )
+                    : CompanyProfile(
+                        id: null,
+                        userId: crtUser.getUserId,
+                        imageLink: _imageUrl,
+                        fullname: _fullNameCtr.text,
+                        email: _emailCtr.text,
+                        about: _aboutCtr.text,
+                      );
+                await widget._userProfileService.addUserProfile(userProfile);
+              },
+              primary: themeData.primaryColorDark,
+            ),
+            const SizedBox(height: 24),
           ],
-          const SizedBox(height: 24),
-          TextFieldWidget(
-            controller: _repoLinkCtr,
-            label: 'Repository Link',
-            text: '',
-            onChanged: (_) {},
-          ),
-          const SizedBox(height: 24),
-          TextFieldWidget(
-            controller: _aboutCtr,
-            label: 'About',
-            text: '',
-            maxLines: 5,
-            onChanged: (_) {},
-          ),
-          const SizedBox(height: 24),
-          CustomElevatedButton(
-            label: 'Save',
-            onPressed: () async {
-              await _uploadCvFile(crtUser);
-              if (imagePath != null) {
-                await _uploadImageFile(crtUser, imagePath!);
-              }
-              print(_cvUrl);
-              print(_imageUrl);
-            },
-            primary: themeData.primaryColorDark,
-          ),
-          const SizedBox(height: 24),
-        ],
+        ),
       ),
     );
   }

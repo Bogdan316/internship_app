@@ -13,6 +13,7 @@ void main() {
         companyId: 1,
         title: 'test',
         description: 'test',
+        requirements: 'test',
         fromDate: now,
         toDate: now,
         participantsNum: 10,
@@ -23,6 +24,7 @@ void main() {
       'companyId': 1,
       'title': 'test',
       'description': 'test',
+      'requirements': 'test',
       'fromDate': now,
       'toDate': now,
       'participantsNum': 10,
@@ -45,6 +47,7 @@ void main() {
         'companyId': 1,
         'title': 'test',
         'description': 'test',
+        'requirements': 'test',
         'fromDate': now.toUtc(),
         'toDate': now.toUtc(),
         'participantsNum': 10,
@@ -60,6 +63,7 @@ void main() {
               testInter.getCompanyId == mapInter['companyId'] &&
               testInter.getTitle == mapInter['title'] &&
               testInter.getDescription == mapInter['description'] &&
+              testInter.getRequirements == mapInter['requirements'] &&
               testInter.getFromDate ==
                   (mapInter['fromDate'] as DateTime).toUtc() &&
               testInter.getToDate == (mapInter['toDate'] as DateTime).toUtc() &&
@@ -71,7 +75,7 @@ void main() {
     });
     test('internship should have toString method', () {
       expect(testInter.toString(),
-          'Internship{_id: 1, _companyId: 1, _title: test, _description: test, _fromDate: ${now.toUtc()}, _toDate: ${now.toUtc()}, _participantsNum: 10, _tag: Tag.gameDevelopment, _isOngoing: true}');
+          'Internship{_id: 1, _companyId: 1, _title: test, _description: test, _requirements: test, _fromDate: ${now.toUtc()}, _toDate: ${now.toUtc()}, _participantsNum: 10, _tag: Tag.gameDevelopment, _isOngoing: true}');
     });
     test('internship should have hasCode getter', () {
       expect(
@@ -80,6 +84,7 @@ void main() {
             testInter.getCompanyId.hashCode ^
             testInter.getTitle.hashCode ^
             testInter.getDescription.hashCode ^
+            testInter.getRequirements.hashCode ^
             testInter.getFromDate.hashCode ^
             testInter.getToDate.hashCode ^
             testInter.getParticipantsNum.hashCode ^

@@ -31,8 +31,10 @@ void main() {
   late MockNavigatorObserver mockObserver;
   late MockUserService mockUserService;
   late User testUser;
+  late Map<String, dynamic> pageArgs;
 
   setUp(() {
+    pageArgs = {'user': Company('test', 'test')};
     mockInternshipService = MockInternshipService();
     mockObserver = MockNavigatorObserver();
     mockUserService = MockUserService();
@@ -93,7 +95,8 @@ void main() {
             onPressed: () => key.currentState?.push(
               MaterialPageRoute<void>(
                 settings: RouteSettings(arguments: Company('test', 'test')),
-                builder: (_) => AddNewInternshipPage(mockInternshipService),
+                builder: (_) =>
+                    AddNewInternshipPage(pageArgs, mockInternshipService),
               ),
             ),
             child: const SizedBox(),
@@ -126,8 +129,9 @@ void main() {
           home: TextButton(
             onPressed: () => key.currentState?.push(
               MaterialPageRoute<void>(
-                settings: RouteSettings(arguments: Company('test', 'test')),
-                builder: (_) => AddNewInternshipPage(mockInternshipService),
+                settings: RouteSettings(arguments: pageArgs),
+                builder: (_) =>
+                    AddNewInternshipPage(pageArgs, mockInternshipService),
               ),
             ),
             child: const SizedBox(),
@@ -164,8 +168,9 @@ void main() {
           home: TextButton(
             onPressed: () => key.currentState?.push(
               MaterialPageRoute<void>(
-                settings: RouteSettings(arguments: Company('test', 'test')),
-                builder: (_) => AddNewInternshipPage(mockInternshipService),
+                settings: RouteSettings(arguments: pageArgs),
+                builder: (_) =>
+                    AddNewInternshipPage(pageArgs, mockInternshipService),
               ),
             ),
             child: const SizedBox(),
@@ -203,8 +208,9 @@ void main() {
           home: TextButton(
             onPressed: () => key.currentState?.push(
               MaterialPageRoute<void>(
-                settings: RouteSettings(arguments: Company('test', 'test')),
-                builder: (_) => AddNewInternshipPage(mockInternshipService),
+                settings: RouteSettings(arguments: pageArgs),
+                builder: (_) =>
+                    AddNewInternshipPage(pageArgs, mockInternshipService),
               ),
             ),
             child: const SizedBox(),
@@ -261,8 +267,9 @@ void main() {
           home: TextButton(
             onPressed: () => key.currentState?.push(
               MaterialPageRoute<void>(
-                settings: RouteSettings(arguments: Company('test', 'test')),
-                builder: (_) => AddNewInternshipPage(mockInternshipService),
+                settings: RouteSettings(arguments: pageArgs),
+                builder: (_) =>
+                    AddNewInternshipPage(pageArgs, mockInternshipService),
               ),
             ),
             child: const SizedBox(),
@@ -307,22 +314,26 @@ void main() {
       final dropDown = find.byType(DropdownButtonFormField<Tag>);
       await tester.tap(dropDown);
       await tester.pumpAndSettle();
-      await tester.tap(find
-          .widgetWithText(DropdownMenuItem<Tag>,
-              TagUtil.convertTagValueToString(Tag.values[0]))
-          .last);
+      await tester.tap(
+          find
+              .widgetWithText(DropdownMenuItem<Tag>,
+                  TagUtil.convertTagValueToString(Tag.values[0]))
+              .last,
+          warnIfMissed: false);
       await tester.pumpAndSettle();
 
       final now = DateFormat('dd/MM/yyyy').format(DateTime.now().toUtc());
       final expectedInternship = Internship(
-          companyId: null,
-          title: 'test',
-          description: 'test',
-          fromDate: DateFormat('dd/MM/yyyy').parse(now),
-          toDate: DateFormat('dd/MM/yyyy').parse(now),
-          participantsNum: 15,
-          tag: Tag.webDevelopment,
-          isOngoing: true);
+        companyId: null,
+        title: 'test',
+        description: 'test',
+        requirements: 'test',
+        fromDate: DateFormat('dd/MM/yyyy').parseUtc(now),
+        toDate: DateFormat('dd/MM/yyyy').parseUtc(now),
+        participantsNum: 15,
+        tag: Tag.webDevelopment,
+        isOngoing: true,
+      );
 
       when(mockInternshipService.addInternship(any))
           .thenAnswer((_) => Future.value());

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-//import './appbar_widget.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
 import './edit_profile_page.dart';
-//import './button_widget_upload.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -53,9 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ProfileWidget(
                     imagePath: '',
                     onClicked: () async {
-                      //await Navigator.of(context).push(
-                      //MaterialPageRoute(builder: (context) => EditProfilePage()),
-                      //);
+                      /// TO DO: EditProfilePage
                       setState((){});
                     },
                   ),
@@ -69,20 +65,6 @@ class _ProfilePageState extends State<ProfilePage> {
           Center(child: buildUpgradeButton()),
           const SizedBox(height: 24),
           Center(child: buildDownloadButton()),
-          /*const SizedBox(height: 24),
-      Center(child: ButtonWidgetUpload(
-            text: 'Select CV',
-            icon: Icons.attach_file,
-            onClicked: selectFile,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Center(child: ButtonWidgetUpload(
-            text: 'Upload CV',
-            icon: Icons.attach_file,
-            onClicked: selectFile,
-          ),
-          ),*/
           const SizedBox(height: 24),
           //NumbersWidget(),
           //buildAbout(){},
@@ -90,7 +72,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
 
   Widget buildName(UserProfile user) => Column(
     children: [
