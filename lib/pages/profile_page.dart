@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
-import './edit_profile_page.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import '/base_widgets/button_widget_download.dart';
 
 class ProfilePage extends StatefulWidget {
-  static const String namedRoute = '/profile_page';//'/create-user-profile';
+  static const String namedRoute = '/profile_page';
 
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -29,14 +28,11 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final crtUser = ModalRoute.of(context)!.settings.arguments as UserProfile;
-    //final user = UserPreferences.getUser();
     return Scaffold(
-      //appBar: buildAppBar(context),
       body:
       ListView(
         physics: const BouncingScrollPhysics(),
         children: [
-          //Needs Stack(
           Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.center,
@@ -66,8 +62,6 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 24),
           Center(child: buildDownloadButton()),
           const SizedBox(height: 24),
-          //NumbersWidget(),
-          //buildAbout(){},
         ],
       ),
     );
@@ -118,7 +112,6 @@ class _ProfilePageState extends State<ProfilePage> {
   buildCoverImage() => Container(
     color: Colors.grey,
     child: Image.network(
-      //'https://res.cloudinary.com/demo/image/facebook/65646572251.jpg',
       'https://www.dior.com/couture/var/dior/storage/images/folder-media/folder-videos/folder-parfums/diorparfums_sauvage_dior_gon/25659534-8-int-EN/diorparfums_sauvage_dior_gon_1440_1200.jpg',
       width: double.infinity,
       height: coverHeight,

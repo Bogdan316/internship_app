@@ -52,25 +52,6 @@ class InternshipService {
     return results.map((e) => Internship.fromMap(e)).toList();
   }
 
-  Future<List<Internship>> getEveryCompanyInternship() async {
-    // Returns a future containing a list of internships for the provided
-    // company id
-
-    final MySqlConnection dbConn = await _dao.initDb;
-    final Results results;
-
-    try {
-      results = await dbConn.query(
-          'SELECT * FROM Internship;',);
-    } on MySqlException {
-      rethrow;
-    } finally {
-      dbConn.close();
-    }
-
-    return results.map((e) => Internship.fromMap(e)).toList();
-  }
-
   Future<void> deleteInternship(Internship internship) async {
     // Deletes the provided internship from the database
 

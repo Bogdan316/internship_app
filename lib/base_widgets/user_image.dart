@@ -41,19 +41,6 @@ class _UserImageState extends State<UserImage> {
             height: 88,
           ),
         ),
-        // InkWell(
-        //   onTap: () => _selectPhoto(),
-        //   child: Padding(
-        //     padding: EdgeInsets.all(8.8),
-        //     child: Text(
-        //       imageUrl != null ? 'Change photo' : 'Select photo',
-        //       style: TextStyle(
-        //         color: Theme.of(context).primaryColor,
-        //         fontWeight: FontWeight.bold,
-        //       ),
-        //     ),
-        //   ),
-        // ),
       ],
     );
   }
@@ -101,11 +88,9 @@ class _UserImageState extends State<UserImage> {
 
     file = await compressImage(file.path, 35);
 
-    //fara ! null check
     await _uploadFile(file!.path);
   }
 
-  //fara ?
   Future<File?> compressImage(String path, int quality) async {
     final newPath = p.join((await getTemporaryDirectory()).path,
         '${DateTime.now()}.${p.extension(path)}');
