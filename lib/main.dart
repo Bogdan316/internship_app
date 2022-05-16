@@ -1,5 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:internship_app_fis/pages/profile_page.dart';
+import 'package:internship_app_fis/services/user_profile_service.dart';
 import 'package:internship_app_fis/pages/ongoing_internships_page.dart';
 
 import '../base_widgets/theme_color.dart';
@@ -13,7 +17,11 @@ import '../services/internship_service.dart';
 
 final internshipApp = InternshipApp(UserService(BaseDao()));
 
-void main() => runApp(internshipApp);
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(internshipApp);
+}
 
 class InternshipApp extends StatelessWidget {
   final UserService _userService;
@@ -42,6 +50,8 @@ class InternshipApp extends StatelessWidget {
               OngoingInternshipsPage(args, InternshipService(BaseDao())),
           AddNewInternshipPage.namedRoute: (ctx) =>
               AddNewInternshipPage(args, InternshipService(BaseDao())),
+          InternshipsMainPage.namedRoute: (_) =>
+          InternshipsMainPage(),
         };
 
         return MaterialPageRoute(
@@ -51,8 +61,9 @@ class InternshipApp extends StatelessWidget {
         );
       },
       routes: {
-        CreateUserProfilePage.namedRoute: (_) => const CreateUserProfilePage(),
-        InternshipsMainPage.namedRoute: (_) => const InternshipsMainPage(),
+        CreateUserProfilePage.namedRoute: (_) =>
+            CreateUserProfilePage(UserProfileService(BaseDao())),
+        ProfilePage.namedRoute: (_) => const ProfilePage(),
       },
     );
   }
