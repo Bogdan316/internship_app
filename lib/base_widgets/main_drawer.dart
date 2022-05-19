@@ -118,7 +118,7 @@ class MainDrawer extends StatelessWidget {
         ),
       ),
       backgroundColor:
-      ColorUtil.lightenColor(Theme.of(context).primaryColor, 0.85),
+          ColorUtil.lightenColor(Theme.of(context).primaryColor, 0.85),
       child: Container(
         alignment: Alignment.centerLeft,
         margin: const EdgeInsets.all(20),
@@ -131,11 +131,11 @@ class MainDrawer extends StatelessWidget {
             children: drawerItems
                 .map(
                   (item) => DrawerListTile(
-                  item['icon']! as IconData,
-                  item['title']! as String,
-                  item['route']! as String,
-                  _pageArgs),
-            )
+                      item['icon']! as IconData,
+                      item['title']! as String,
+                      item['route']! as String,
+                      _pageArgs),
+                )
                 .toList(),
           ),
         ),

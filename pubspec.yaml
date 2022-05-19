@@ -37,6 +37,8 @@ dependencies:
   firebase_core:
   firebase_storage:
   file_picker:
+  cached_network_image:
+  provider:
 
   google_sign_in:
 

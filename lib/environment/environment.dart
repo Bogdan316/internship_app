@@ -1,6 +1,8 @@
 class Environment {
-  static const dbHost = 'sql11.freemysqlhosting.net';
-  static const dbUser = 'sql11489593';
-  static const dbPasswd = 'qG85iTgwxB';
-  static const dbSchema = 'sql11489593';
+  // Class used for retrieving compile time variables
+  // use flutter run --dart-define to define these variables
+  static const dbHost = String.fromEnvironment('DB_HOST');
+  static const dbUser = String.fromEnvironment('DB_USER');
+  static const dbPasswd = String.fromEnvironment('DB_PASSWD');
+  static const dbSchema = String.fromEnvironment('DB_SCHEMA');
 }
