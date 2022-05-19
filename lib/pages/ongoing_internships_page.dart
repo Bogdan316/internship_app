@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/models/user_profile.dart';
+import 'package:internship_app_fis/pages/internship_participants_page.dart';
 import 'package:mysql1/mysql1.dart';
 
 import '../models/internship.dart';
@@ -27,6 +30,7 @@ class OngoingInternshipsPage extends StatefulWidget {
 class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
   late Future<List<Internship>> _ongoingInternships;
   late Company _crtCompany;
+  late CompanyProfile _crtCompanyProfile;
 
   FutureOr _updateOngoingInternshipsList(dynamic value) {
     // Updates the list of internships
@@ -42,6 +46,7 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
     // for the current company as a future
     super.initState();
     _crtCompany = widget._pageArgs['user'] as Company;
+    _crtCompanyProfile = widget._pageArgs['profile'] as CompanyProfile;
     _ongoingInternships =
         widget._internshipService.getAllCompanyInternships(_crtCompany);
   }
@@ -66,6 +71,7 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
               if (snapshot.hasData) {
                 if (snapshot.data!.isNotEmpty) {
                   return ListView.builder(
+                    physics: const BouncingScrollPhysics(),
                     itemCount: snapshot.data!.length,
                     itemBuilder: (ctx, idx) => Card(
                       elevation: 6,
@@ -81,6 +87,15 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                         // to ensure that the tiles are rebuilt after one
                         // of them is deleted
                         key: Key(snapshot.data![idx].getId!.toString()),
+                        onTap: () {
+                          final participantsArgs =
+                              Map<String, dynamic>.from(widget._pageArgs);
+                          participantsArgs['internship'] = snapshot.data![idx];
+                          Navigator.of(context).pushNamed(
+                            InternshipParticipantsPage.namedRoute,
+                            arguments: participantsArgs,
+                          );
+                        },
                         iconColor: themeData.primaryColorDark,
                         tileColor:
                             ColorUtil.lightenColor(themeData.primaryColor, 0.9),
@@ -89,11 +104,17 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                         ),
                         visualDensity:
                             const VisualDensity(horizontal: -1, vertical: -1),
-                        // TODO: replace placeholder with user profile photo
-                        leading: const CircleAvatar(
-                          child: Text('PlcHolder'),
-                          backgroundColor: Colors.purple,
-                          radius: 30,
+                        leading: ClipOval(
+                          child: CachedNetworkImage(
+                            height: 50,
+                            width: 50,
+                            imageUrl: _crtCompanyProfile.getImageLink!,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         title: Text(
                           snapshot.data![idx].getTitle!,
@@ -141,7 +162,8 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                                   });
                                 } on MySqlException {
                                   final snackBar = MessageSnackBar(
-                                      'We could not delete this internship, try again later.');
+                                    'We could not delete this internship, try again later.',
+                                  );
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
                                 }
