@@ -6,7 +6,7 @@ class ButtonWidgetDownload extends StatelessWidget{
   final String text;
   final VoidCallback onClicked;
 
-  /*const*/  ButtonWidgetDownload({
+  ButtonWidgetDownload({
     Key? key,
     required this.text,
     required this.onClicked,
@@ -23,8 +23,6 @@ class ButtonWidgetDownload extends StatelessWidget{
     ),
     icon: Icon(
       FontAwesomeIcons.solidFilePdf,
-      /*Icon( // <-- Icon
-      Icons.download,*/
       size: 24.0,
     ),
     label: Text(text),

@@ -13,13 +13,12 @@ import 'internship_page.dart';
 
 class InternshipsMainPage extends StatefulWidget {
   // Page holding the internships of the current company
-  static const String namedRoute = '/ongoing-internships-page';
+  static const String namedRoute = '/internships-main-page';
 
   final InternshipService _internshipService;
   final Map<String, dynamic> _pageArgs;
 
-  const InternshipsMainPage(this._pageArgs, this._internshipService,
-      {Key? key})
+  const InternshipsMainPage(this._pageArgs, this._internshipService, {Key? key})
       : super(key: key);
 
   @override
@@ -28,27 +27,26 @@ class InternshipsMainPage extends StatefulWidget {
 
 class _InternshipsMainPageState extends State<InternshipsMainPage> {
   late Future<List<Internship>> _ongoingInternships;
-  late Company _crtCompany;
+  late User _crtCompany;
 
   FutureOr _updateOngoingInternshipsList(dynamic value) {
     setState(() {
       _ongoingInternships =
-          widget._internshipService.getEveryCompanyInternship();
+          widget._internshipService.getEveryCompanyInternship(_crtCompany);
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _crtCompany = widget._pageArgs['user'] as Company;
-    _ongoingInternships =
-        widget._internshipService.getEveryCompanyInternship();
+    _crtCompany = widget._pageArgs['user'] as User;
+    _ongoingInternships = widget._internshipService.getEveryCompanyInternship(_crtCompany);
   }
 
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-
+    print(widget._pageArgs);
     final appBar = AppBar(
       title: const Text('All Internships'),
     );
@@ -58,7 +56,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
         backgroundColor: themeData.primaryColor,
         title: const Text('Internship App'),
       ),
-      drawer: const MainDrawer(),
+      drawer: MainDrawer(widget._pageArgs),
       body: SizedBox(
         width: double.infinity,
         child: Center(
@@ -71,60 +69,62 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                 if (snapshot.data!.isNotEmpty) {
                   return ListView.builder(
                     itemCount: snapshot.data!.length,
-                    itemBuilder: (ctx, idx) => GestureDetector(
-                      onTap: () async {
-                        //if (snapshot.data![idx] != null) {
-                        Navigator.of(context).pushReplacementNamed(
-                          InternshipPage.namedRoute,
-                          arguments: <String, dynamic>{
-                            'user': snapshot.data![idx]
+                    itemBuilder: (ctx, idx) => Card(
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 24,
+                      ),
+                      child: ListTile(
+                          onTap: () async {
+                            final internshipPageArgs =
+                                Map<String, dynamic>.from(widget._pageArgs);
+                            internshipPageArgs['internship'] =
+                                snapshot.data![idx];
+                            var hasApplied = false;
+                            hasApplied = await Navigator.of(context).pushNamed(
+                                InternshipPage.namedRoute,
+                                arguments: internshipPageArgs) as bool;
+                            if (hasApplied) {
+                              setState(() {
+                                snapshot.data!.removeAt(idx);
+                              });
+                            }
                           },
-                        );
-                        //}
-                      },
-                      child: Card(
-                        elevation: 6,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 24,
-                        ),
-                        child: ListTile(
                           // the unique id from the database is used as a key
                           // to ensure that the tiles are rebuilt after one
                           // of them is deleted
-                            key: Key(snapshot.data![idx].getId!.toString()),
-                            iconColor: themeData.primaryColorDark,
-                            tileColor:
-                            ColorUtil.lightenColor(themeData.primaryColor, 0.9),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            visualDensity:
-                            const VisualDensity(horizontal: -1, vertical: -1),
-                            // TODO: replace placeholder with user profile photo
-                            leading: const CircleAvatar(
-                              child: Text('PlcHolder'),
-                              backgroundColor: Colors.purple,
-                              radius: 30,
-                            ),
-                            title: Text(
-                              snapshot.data![idx].getTitle!,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            subtitle: Text(
-                              snapshot.data![idx].getDescription!,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-
-                            trailing: Icon(snapshot.data![idx].getIsOngoing != 1 ? Icons.check
-                                : Icons.wrong_location)
-                        ),
-                      ),
+                          key: Key(snapshot.data![idx].getId!.toString()),
+                          iconColor: themeData.primaryColorDark,
+                          tileColor: ColorUtil.lightenColor(
+                              themeData.primaryColor, 0.9),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          visualDensity:
+                              const VisualDensity(horizontal: -1, vertical: -1),
+                          // TODO: replace placeholder with user profile photo
+                          leading: const CircleAvatar(
+                            child: Text('PlcHolder'),
+                            backgroundColor: Colors.purple,
+                            radius: 30,
+                          ),
+                          title: Text(
+                            snapshot.data![idx].getTitle!,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          subtitle: Text(
+                            snapshot.data![idx].getDescription!,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          trailing: Icon(snapshot.data![idx].getIsOngoing != 1
+                              ? Icons.check
+                              : Icons.wrong_location)),
                     ),
                   );
                 } else {
@@ -166,5 +166,3 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
     );
   }
 }
-
-

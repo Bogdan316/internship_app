@@ -1,4 +1,3 @@
-//import 'dart:io';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
@@ -39,8 +38,6 @@ class ProfileWidget extends StatelessWidget{
 
     return ClipOval(
       child: Material(
-        //Adaugat acum
-
 
         color: Colors.transparent,
         child: Ink.image(

@@ -1,8 +1,4 @@
-//import './user_profile.dart';
-
 abstract class UserProfile {
-  // Class holding the user model that corresponds to the tables from the
-  // main db
 
   int? _id;
   int? _userId;
@@ -105,7 +101,6 @@ abstract class UserProfile {
 }
 
 class CompanyProfile extends UserProfile{
-  // Company model for the Company table
 
   CompanyProfile(
       {int? id, int? userId, String? imageLink, String? fullname, String? email, String? about})
@@ -114,7 +109,6 @@ class CompanyProfile extends UserProfile{
 }
 
 class StudentProfile extends UserProfile{
-  // Company model for the Company table
 
   StudentProfile(
       {int? id,

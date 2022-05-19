@@ -13,8 +13,10 @@ class DrawerListTile extends StatelessWidget {
   final String _title;
   final String _route;
   final IconData _icon;
+  final Map<String, dynamic> _pageArgs;
 
-  const DrawerListTile(this._icon, this._title, this._route, {Key? key})
+  const DrawerListTile(this._icon, this._title, this._route, this._pageArgs,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -50,8 +52,7 @@ class DrawerListTile extends StatelessWidget {
             // closes the drawer before redirecting to the next page
             Navigator.of(context).pop();
             // passes the current arguments to the next page
-            Navigator.of(context).pushNamed(_route,
-                arguments: ModalRoute.of(context)!.settings.arguments);
+            Navigator.of(context).pushNamed(_route, arguments: _pageArgs);
           },
         ),
         const SizedBox(
@@ -63,7 +64,8 @@ class DrawerListTile extends StatelessWidget {
 }
 
 class MainDrawer extends StatelessWidget {
-  const MainDrawer({Key? key}) : super(key: key);
+  final Map<String, dynamic> _pageArgs;
+  const MainDrawer(this._pageArgs, {Key? key}) : super(key: key);
 
   // items that should be showed in the drawer when the user is a company
   final _companyDrawerItems = const [
@@ -101,9 +103,7 @@ class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // get the current user
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final crtUser = args['user'] as User;
+    final crtUser = _pageArgs['user'] as User;
     // decides the list that will be showed in the drawer based on the user's
     // role
     final drawerItems = crtUser.runtimeType == Student
@@ -118,7 +118,7 @@ class MainDrawer extends StatelessWidget {
         ),
       ),
       backgroundColor:
-          ColorUtil.lightenColor(Theme.of(context).primaryColor, 0.85),
+      ColorUtil.lightenColor(Theme.of(context).primaryColor, 0.85),
       child: Container(
         alignment: Alignment.centerLeft,
         margin: const EdgeInsets.all(20),
@@ -131,11 +131,11 @@ class MainDrawer extends StatelessWidget {
             children: drawerItems
                 .map(
                   (item) => DrawerListTile(
-                    item['icon']! as IconData,
-                    item['title']! as String,
-                    item['route']! as String,
-                  ),
-                )
+                  item['icon']! as IconData,
+                  item['title']! as String,
+                  item['route']! as String,
+                  _pageArgs),
+            )
                 .toList(),
           ),
         ),

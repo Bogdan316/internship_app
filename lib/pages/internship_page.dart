@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import '../services/internship_service.dart';
-import './profile_widget.dart';
+import '../base_widgets/custom_elevated_button.dart';
+import '../models/internship.dart';
+import '../models/internship_application.dart';
+import '../models/user.dart';
+import '../services/internship_application_service.dart';
 
 
 class InternshipPage extends StatefulWidget {
   static const String namedRoute = '/internship-page';
-  final InternshipService _internshipService;
+  final InternshipApplicationService _internshipApplicationService;
+  final Map<String, dynamic> _pageArgs;
 
-  const InternshipPage(this._internshipService,
-      {Key? key})
+  const InternshipPage(this._pageArgs, this._internshipApplicationService, {Key? key})
       : super(key: key);
 
   @override
@@ -17,56 +20,51 @@ class InternshipPage extends StatefulWidget {
 
 const double coverHeight = 180;
 const double profileHeight = 128;
-const top = coverHeight - profileHeight/2;
-const bottom = profileHeight  ;
+const top = coverHeight - profileHeight / 2;
+const bottom = profileHeight;
 
 class _InternshipPageState extends State<InternshipPage> {
-
   @override
   Widget build(BuildContext context) {
-    //final crtInternship = ModalRoute.of(context)!.settings.arguments as InternshipProfile;
+    final crtInternship = widget._pageArgs['internship'] as Internship;
+    final crtUser = widget._pageArgs['user'] as User;
+    final themeData = Theme.of(context);
 
     return Scaffold(
-      //appBar: buildAppBar(context),
-      body:
-      ListView(
-        physics: const BouncingScrollPhysics(),
+      appBar: AppBar(),
+      body: Column(
         children: [
-          //Needs Stack(
-          Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              // buildCoverImage(),
-              Positioned(
-                top: top,
-                child:
-                Container(
-                  margin: const EdgeInsets.only(bottom: bottom),
-                  child:
-                  ProfileWidget(
-                    imagePath: '',
-                    onClicked: () async {
-                      //await Navigator.of(context).push(
-                      //MaterialPageRoute(builder: (context) => EditProfilePage()),
-                      //);
-                      setState(() {});
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
+          Text(crtInternship.toString()),
+
           const SizedBox(height: 80),
-          //buildName(crtUser),
-          const SizedBox(height: 24),
-          //Center(child: buildUpgradeButton()),
-          const SizedBox(height: 24),
+          buildName(crtInternship),
 
-          const SizedBox(height: 24),
+          CustomElevatedButton(
+            label: 'Apply',
+            onPressed: () async {
+              final internshipApplication = InternshipApplication(
+                  internshipId: crtInternship.getId,
+                  studentId: crtUser.getUserId);
+                  await widget._internshipApplicationService.addInternshipApplication(internshipApplication);
+                  Navigator.of(context).pop(true);
+                  },
 
+            primary: themeData.primaryColorDark,
+          )
         ],
       ),
+
     );
   }
+
+  Widget buildName(Internship internship) =>
+      Column(
+        children: [
+          Text(
+            internship.getTitle!,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+          ),
+          const SizedBox(height: 24),
+        ],
+      );
 }
