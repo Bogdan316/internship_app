@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
 import 'package:internship_app_fis/pages/firebase_api.dart';
+import 'package:internship_app_fis/pages/internships_main_page.dart';
 import 'package:internship_app_fis/pages/profile_widget.dart';
 import '../base_widgets/button_widget_upload.dart';
 import '../base_widgets/custom_snack_bar.dart';
@@ -37,7 +38,11 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
   String? _imageUrl;
 
   Future _selectCvFile() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+    );
 
     if (result == null) return;
     final path = result.files.single.path;
@@ -179,11 +184,11 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
             if (crtUser.runtimeType == Student) ...[
               const SizedBox(height: 24),
               TextFieldWidget(
-              controller: _repoLinkCtr,
-              label: 'Repository Link',
-              text: '',
-              onChanged: (_) {},
-            ),
+                controller: _repoLinkCtr,
+                label: 'Repository Link',
+                text: '',
+                onChanged: (_) {},
+              ),
             ],
             const SizedBox(height: 24),
             TextFieldWidget(
@@ -231,6 +236,12 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
                         about: _aboutCtr.text,
                       );
                 await widget._userProfileService.addUserProfile(userProfile);
+                Navigator.of(context).pushReplacementNamed(
+                    InternshipsMainPage.namedRoute,
+                    arguments: <String, dynamic>{
+                      'user': crtUser,
+                      'profile': userProfile
+                    });
               },
               primary: themeData.primaryColorDark,
             ),
