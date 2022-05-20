@@ -101,7 +101,6 @@ abstract class UserProfile {
 }
 
 class CompanyProfile extends UserProfile{
-  // Company model for the Company table
 
   CompanyProfile(
       {int? id, int? userId, String? imageLink, String? fullname, String? email, String? about})

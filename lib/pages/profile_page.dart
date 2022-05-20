@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/models/user.dart';
+import 'package:internship_app_fis/pages/create_user_profile_page.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
@@ -9,8 +13,9 @@ import '/base_widgets/button_widget_download.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String namedRoute = '/profile_page';
+  final Map<String,dynamic>_pageArgs;
 
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage(this._pageArgs,{Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -24,10 +29,16 @@ const bottom = profileHeight  ;
 class _ProfilePageState extends State<ProfilePage> {
   UploadTask? task;
   File? file;
+  late UserProfile crtUser;
+
+  @override
+  void initState(){
+    super.initState();
+    crtUser = widget._pageArgs['profile'] as UserProfile;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final crtUser = ModalRoute.of(context)!.settings.arguments as UserProfile;
     return Scaffold(
       body:
       ListView(
@@ -45,9 +56,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   margin: const EdgeInsets.only(bottom: bottom),
                   child:
                   ProfileWidget(
-                    imagePath: '',
+                    imagePath: crtUser.getImageLink,
                     onClicked: () async {
                       /// TO DO: EditProfilePage
+                      Navigator.of(context).pushReplacementNamed(
+                          CreateUserProfilePage.namedRoute,
+                          arguments: widget._pageArgs,
+                      );
                       setState((){});
                     },
                   ),
@@ -58,9 +73,9 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 80),
           buildName(crtUser),
           const SizedBox(height: 24),
-          Center(child: buildUpgradeButton()),
+          Center(child: buildUpgradeButton(crtUser)),
           const SizedBox(height: 24),
-          Center(child: buildDownloadButton()),
+          Center(child: buildDownloadButton(crtUser)),
           const SizedBox(height: 24),
         ],
       ),
@@ -81,14 +96,16 @@ class _ProfilePageState extends State<ProfilePage> {
     ],
   );
 
-  Widget buildUpgradeButton() => ButtonWidget(
+  Widget buildUpgradeButton(UserProfile user) => ButtonWidget(
     text: 'Repository',
     onClicked: () {},
+    url: Uri.parse(user.getRepo!),
   );
 
-  Widget buildDownloadButton() => ButtonWidgetDownload(
+  Widget buildDownloadButton(UserProfile user) => ButtonWidget(
     text: 'CV',
     onClicked: () {},
+    url: Uri.parse(user.getCvLink!),
   );
 
   Widget buildAbout(UserProfile user) => Container(
@@ -112,7 +129,7 @@ class _ProfilePageState extends State<ProfilePage> {
   buildCoverImage() => Container(
     color: Colors.grey,
     child: Image.network(
-      'https://www.dior.com/couture/var/dior/storage/images/folder-media/folder-videos/folder-parfums/diorparfums_sauvage_dior_gon/25659534-8-int-EN/diorparfums_sauvage_dior_gon_1440_1200.jpg',
+      'https://image.winudf.com/v2/image1/Y29tLm1pay5ncmFkaWVudGJhY2tncm91bmRfc2NyZWVuXzBfMTYyNDI0NDQ0M18wMDM/screen-0.jpg?fakeurl=1&type=.jpg',
       width: double.infinity,
       height: coverHeight,
       fit: BoxFit.cover,

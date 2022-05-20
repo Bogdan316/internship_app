@@ -10,7 +10,11 @@ class UserProfileService {
 
   UserProfileService(this._dao);
 
-  Future<UserProfile?> getUserProfileById(User user) async {
+  Future<UserProfile?> getUserProfileById(
+      User user, UserProfile profile) async {
+    // Returns Future with the entry from the table for username and password
+    // if the user exists, if not then null
+
     final MySqlConnection dbConn = await _dao.initDb;
     final Results result;
 
@@ -36,6 +40,9 @@ class UserProfileService {
   }
 
   Future<void> addUserProfile(UserProfile profile) async {
+    // Adds a new user to the database, if a user with the same username already
+    // exists throws an exception
+
     final MySqlConnection dbConn = await _dao.initDb;
     final Results result;
 
@@ -49,70 +56,22 @@ class UserProfileService {
       dbConn.close();
     }
 
+    // Get the auto_increment id and set it
     profile.setProfileId(result.insertId!);
   }
 
-  Future<List<StudentProfile>> getStudentProfilesByInternshipId(
-      Internship internship) async {
+  Future<List<CompanyProfile>> getAllCompanyProfiles() async {
     final MySqlConnection dbConn = await _dao.initDb;
     final Results result;
 
     try {
-      result = await dbConn.query(
-          "select id, userId, imageLink, fullname, email, cvLink, repo, about from StudentProfile where userId in (select studentId from InternshipApplication where internshipId = ?);",
-          [internship.getId]);
+      result = await dbConn.query("SELECT * FROM CompanyProfile;");
     } on MySqlException {
       rethrow;
     } finally {
       dbConn.close();
     }
 
-    return result.map((e) => StudentProfile.fromMap(e)).toList();
-  }
-
-  Future<void> addAcceptedParticipantsList(
-      Internship internship, List<UserProfile> userProfiles) async {
-    final MySqlConnection dbConn = await _dao.initDb;
-    final Results result;
-
-    final queryPlaceholder =
-        userProfiles.map((e) => '(NULL, ?, ?, ?)').join(', ');
-    final insertData = userProfiles
-        .map((profile) => [profile.getUserId, profile.getId, internship.getId])
-        .expand((ids) => ids)
-        .toList();
-    try {
-      await dbConn.query(
-          "DELETE FROM acceptedParticipants WHERE internshipId = ?;",
-          [internship.getId]);
-      result = await dbConn.query(
-          "INSERT INTO acceptedParticipants VALUES $queryPlaceholder;",
-          insertData);
-    } on MySqlException {
-      rethrow;
-    } finally {
-      dbConn.close();
-    }
-  }
-
-  Future<List<StudentProfile>> getAcceptedParticipantsList(
-      Internship internship) async {
-    final MySqlConnection dbConn = await _dao.initDb;
-    final Results result;
-
-    try {
-      result = await dbConn.query(
-          "select studentProfile.id, userId, imageLink, fullname, email, cvLink, repo, about from studentProfile join acceptedParticipants on studentProfile.id = acceptedParticipants.profileId where internshipId = ?;",
-          [internship.getId]);
-    } on MySqlException {
-      rethrow;
-    } finally {
-      dbConn.close();
-    }
-    if (result.isNotEmpty) {
-      return result.map((e) => StudentProfile.fromMap(e)).toList();
-    } else {
-      return <StudentProfile>[];
-    }
+    return result.map((e) => CompanyProfile.fromMap(e)).toList();
   }
 }

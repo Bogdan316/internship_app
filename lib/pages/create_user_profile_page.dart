@@ -15,11 +15,14 @@ import '../services/user_profile_service.dart';
 import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart' as storage;
 
+import 'internships_main_page.dart';
+
 class CreateUserProfilePage extends StatefulWidget {
   static const String namedRoute = '/create-user-user-profile';
   final UserProfileService _userProfileService;
+  final Map<String,dynamic>_pageArgs;
 
-  const CreateUserProfilePage(this._userProfileService, {Key? key})
+  const CreateUserProfilePage(this._pageArgs,this._userProfileService, {Key? key})
       : super(key: key);
 
   @override
@@ -36,6 +39,32 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
   String? _cvUrl;
   String? imagePath;
   String? _imageUrl;
+
+  late User crtUser;
+  late UserProfile? _crtUserProfile;
+
+  @override
+  void initState(){
+    super.initState();
+    crtUser= widget._pageArgs['user'] as User;
+    _crtUserProfile = widget._pageArgs.containsKey('profile')
+      ? widget._pageArgs['profile'] as UserProfile
+        : null;
+    _fillCrtProfile();
+  }
+  void _fillCrtProfile(){
+      if(_crtUserProfile != null){
+        setState((){
+          _fullNameCtr.text = _crtUserProfile!.getFullName!;
+          _repoLinkCtr.text = _crtUserProfile!.getRepo!;
+          _aboutCtr.text = _crtUserProfile!.getAbout!;
+          _emailCtr.text = _crtUserProfile!.getEmail!;
+          _cvUrl = _crtUserProfile!.getCvLink!;
+          _imageUrl = _crtUserProfile!.getImageLink;
+          imagePath = _crtUserProfile!.getImageLink;
+        });
+      }
+  }
 
   Future _selectCvFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -126,9 +155,6 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final pageArgs =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final crtUser = pageArgs['user'] as User;
     final themeData = Theme.of(context);
 
     return Scaffold(
@@ -242,7 +268,7 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
                       'user': crtUser,
                       'profile': userProfile
                     });
-              },
+                },
               primary: themeData.primaryColorDark,
             ),
             const SizedBox(height: 24),
