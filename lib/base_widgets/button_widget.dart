@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class ButtonWidget extends StatelessWidget {
   final String text;
   final VoidCallback onClicked;
-  // final Uri? url;
   const ButtonWidget({
     Key? key,
     required this.text,
     required this.onClicked,
-    // this.url,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) => ElevatedButton.icon(
@@ -25,7 +22,4 @@ class ButtonWidget extends StatelessWidget {
     label: Text(text),
     onPressed: onClicked,
   );
-// void _launchUrl() async {
-//   if (!) throw 'Could not launch $url';
-// }
 }

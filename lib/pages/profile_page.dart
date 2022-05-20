@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flowder/flowder.dart';
@@ -146,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
         },
       );
       core = await Flowder.download(
-        'https://firebasestorage.googleapis.com/v0/b/internship-app-3b46b.appspot.com/o/Student%2Fcv%2FStudent2?alt=media&token=ee60258b-2230-44fb-b24c-697c22e3e58f',
+        crtUser.getImageLink!,
         options,
       );
     },
@@ -179,14 +178,6 @@ class _ProfilePageState extends State<ProfilePage> {
       fit: BoxFit.cover,
     ),
   );
-
-  Future selectFile() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
-    if (result == null) return;
-    final path = result.files.single.path!;
-
-    setState(() => file = File(path));
-  }
 
   List<Widget> _buildStudentLayout() {
     return [

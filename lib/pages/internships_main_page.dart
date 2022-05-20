@@ -64,7 +64,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
         : Future.value(<Internship>[]);
     _allInternships = widget._internshipService.getAllInternships();
     _companyProfiles = widget._profileService.getAllCompanyProfiles();
-    _crtProfile = widget._profileService.getUserProfileById(_crtUser);
+    _crtProfile = widget._profileService.getStudentProfileById(_crtUser);
   }
 
   void _toggleOngoing(bool isOngoing) {
@@ -101,9 +101,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
             ]),
             builder: (ctx, snapshot) {
               if (snapshot.hasData) {
-                //print(snapshot.data![3]);
                 if (!widget._pageArgs.containsKey('profile')) {
-                 // print(snapshot.data![3]);
                   widget._pageArgs['profile'] = snapshot.data![3];
                 } // cast the snapshot data to the appropriate types
                 final internships = snapshot.data![0]

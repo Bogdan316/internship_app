@@ -10,7 +10,7 @@ class UserProfileService {
 
   UserProfileService(this._dao);
 
-  Future<UserProfile?> getUserProfileById(
+  Future<UserProfile?> getStudentProfileById(
       User user) async {
     // Returns Future with the entry from the table for username and password
     // if the user exists, if not then null
