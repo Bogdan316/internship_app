@@ -1,7 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:internship_app_fis/models/user_profile.dart';
 import 'package:intl/intl.dart';
+
+import '../models/user_profile.dart';
 import '../base_widgets/custom_elevated_button.dart';
 import '../models/internship.dart';
 import '../models/internship_application.dart';
@@ -9,6 +10,8 @@ import '../models/user.dart';
 import '../services/internship_application_service.dart';
 
 class InternshipPage extends StatefulWidget {
+  // Displays the details of an internship
+
   static const String namedRoute = '/internship-page';
   final InternshipApplicationService _internshipApplicationService;
   final Map<String, dynamic> _pageArgs;
@@ -26,9 +29,12 @@ const double coverHeight = 180;
 class _InternshipPageState extends State<InternshipPage> {
   @override
   Widget build(BuildContext context) {
+    // convert the page arguments to the appropriate types
     final crtInternship = widget._pageArgs['internship'] as Internship;
     final crtUser = widget._pageArgs['user'] as User;
     final crtProfile = widget._pageArgs['profile'] as CompanyProfile;
+    final appliedInternships =
+        widget._pageArgs['notAppliedInternships'] as List<Internship>;
     final themeData = Theme.of(context);
 
     return Scaffold(
@@ -65,12 +71,26 @@ class _InternshipPageState extends State<InternshipPage> {
                   children: [
                     buildTextContent(
                       crtInternship.getTitle!,
-                      28,
+                      30,
                       themeData.primaryColorDark,
                     ),
                     buildTextContent(
                       crtInternship.getDescription!,
                       18,
+                    ),
+                    Row(
+                      children: [
+                        buildTextContent(
+                          'Subject: ',
+                          20,
+                          themeData.primaryColorDark,
+                        ),
+                        buildTextContent(
+                          TagUtil.convertTagValueToString(
+                              crtInternship.getTag!),
+                          18,
+                        )
+                      ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -81,9 +101,10 @@ class _InternshipPageState extends State<InternshipPage> {
                           themeData.primaryColorDark,
                         ),
                         buildTextContent(
-                            DateFormat('dd/MM/yyyy')
-                                .format(crtInternship.getFromDate!),
-                            18)
+                          DateFormat('dd/MM/yyyy')
+                              .format(crtInternship.getFromDate!),
+                          18,
+                        )
                       ],
                     ),
                     Row(
@@ -129,7 +150,11 @@ class _InternshipPageState extends State<InternshipPage> {
               ),
             ),
           ),
-          if (crtUser.runtimeType == Student)
+          // the user can apply to an ongoing internship only if he is a student
+          // and has not applied yet to that internship
+          if (crtUser.runtimeType == Student &&
+              crtInternship.getIsOngoing! &&
+              appliedInternships.contains(crtInternship))
             Center(
               child: CustomElevatedButton(
                 label: 'Apply',
@@ -139,7 +164,7 @@ class _InternshipPageState extends State<InternshipPage> {
                       studentId: crtUser.getUserId);
                   await widget._internshipApplicationService
                       .addInternshipApplication(internshipApplication);
-                  Navigator.of(context).pop(true);
+                  Navigator.of(context).pop();
                 },
                 primary: themeData.primaryColorDark,
               ),
