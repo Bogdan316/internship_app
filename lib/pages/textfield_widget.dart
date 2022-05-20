@@ -24,13 +24,6 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   // late final TextEditingController controller;
 
   @override
-  void dispose(){
-    //controller.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [

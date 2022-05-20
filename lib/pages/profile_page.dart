@@ -40,12 +40,10 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: buildAppBar(context),
       body:
       ListView(
         physics: const BouncingScrollPhysics(),
         children: [
-          //Needs Stack(
           Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.center,
@@ -79,8 +77,6 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 24),
           Center(child: buildDownloadButton(crtUser)),
           const SizedBox(height: 24),
-          //NumbersWidget(),
-          //buildAbout(){},
         ],
       ),
     );

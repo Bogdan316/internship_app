@@ -1,3 +1,4 @@
+import 'package:internship_app_fis/models/internship.dart';
 import 'package:mysql1/mysql1.dart';
 
 import '../dao/base_dao.dart';
@@ -19,7 +20,7 @@ class UserProfileService {
 
     try {
       result = await dbConn.query(
-          "SELECT * FROM ${profile.runtimeType} WHERE id = ?",
+          "SELECT * FROM ${user.runtimeType}Profile WHERE id = ?",
           [user.getUserId]);
     } on MySqlException {
       rethrow;
@@ -30,7 +31,7 @@ class UserProfileService {
     if (result.isEmpty) {
       return null;
     } else {
-      if (profile.runtimeType == CompanyProfile) {
+      if (user.runtimeType == Company) {
         return CompanyProfile.fromMap(result.first);
       } else {
         return StudentProfile.fromMap(result.first);
