@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:internship_app_fis/pages/internship_participants_page.dart';
+import 'package:internship_app_fis/pages/internship_page.dart';
 import 'package:internship_app_fis/pages/profile_page.dart';
+import 'package:internship_app_fis/services/internship_application_service.dart';
 import 'package:internship_app_fis/services/user_profile_service.dart';
 import 'package:internship_app_fis/pages/ongoing_internships_page.dart';
 
@@ -51,10 +51,13 @@ class InternshipApp extends StatelessWidget {
               OngoingInternshipsPage(args, InternshipService(BaseDao())),
           AddNewInternshipPage.namedRoute: (ctx) =>
               AddNewInternshipPage(args, InternshipService(BaseDao())),
-          InternshipsMainPage.namedRoute: (ctx) =>
-              InternshipsMainPage(args, UserProfileService(BaseDao())),
-          InternshipParticipantsPage.namedRoute: (ctx) =>
-              InternshipParticipantsPage(args, UserProfileService(BaseDao())),
+          InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(args,
+              InternshipService(BaseDao()), UserProfileService(BaseDao())),
+          InternshipPage.namedRoute: (ctx) =>
+              InternshipPage(args, InternshipApplicationService(BaseDao())),
+          CreateUserProfilePage.namedRoute: (ctx) =>
+              CreateUserProfilePage(args, UserProfileService(BaseDao())),
+          ProfilePage.namedRoute: (ctx) => ProfilePage(args),
         };
 
         return MaterialPageRoute(
@@ -62,11 +65,6 @@ class InternshipApp extends StatelessWidget {
             return routes[settings.name]!(context);
           },
         );
-      },
-      routes: {
-        CreateUserProfilePage.namedRoute: (_) =>
-            CreateUserProfilePage(UserProfileService(BaseDao())),
-        ProfilePage.namedRoute: (_) => const ProfilePage(),
       },
     );
   }

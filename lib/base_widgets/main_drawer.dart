@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internship_app_fis/pages/ongoing_internships_page.dart';
 import 'package:internship_app_fis/pages/profile_page.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../base_widgets/theme_color.dart';
 import '../pages/add_new_internship_page.dart';
@@ -63,9 +64,26 @@ class DrawerListTile extends StatelessWidget {
   }
 }
 
-class MainDrawer extends StatelessWidget {
+class MainDrawer extends StatefulWidget {
   final Map<String, dynamic> _pageArgs;
-  const MainDrawer(this._pageArgs, {Key? key}) : super(key: key);
+  final void Function(bool) _toggleFunction;
+  final bool _isCrtOngoing;
+  const MainDrawer(this._pageArgs, this._toggleFunction, this._isCrtOngoing,
+      {Key? key})
+      : super(key: key);
+
+  @override
+  State<MainDrawer> createState() => _MainDrawerState();
+}
+
+class _MainDrawerState extends State<MainDrawer> {
+  late int _initialToggleLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialToggleLabel = widget._isCrtOngoing ? 0 : 1;
+  }
 
   // items that should be showed in the drawer when the user is a company
   final _companyDrawerItems = const [
@@ -103,7 +121,7 @@ class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // get the current user
-    final crtUser = _pageArgs['user'] as User;
+    final crtUser = widget._pageArgs['user'] as User;
     // decides the list that will be showed in the drawer based on the user's
     // role
     final drawerItems = crtUser.runtimeType == Student
@@ -128,15 +146,40 @@ class MainDrawer extends StatelessWidget {
           height: MediaQuery.of(context).size.height * 0.9,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: drawerItems
-                .map(
-                  (item) => DrawerListTile(
-                      item['icon']! as IconData,
-                      item['title']! as String,
-                      item['route']! as String,
-                      _pageArgs),
-                )
-                .toList(),
+            children: [
+              ...drawerItems
+                  .map(
+                    (item) => DrawerListTile(
+                        item['icon']! as IconData,
+                        item['title']! as String,
+                        item['route']! as String,
+                        widget._pageArgs),
+                  )
+                  .toList(),
+              // toggles between the ongoing and past internships from the
+              // main page
+              ToggleSwitch(
+                animate: true,
+                animationDuration: 400,
+                minWidth: 80,
+                initialLabelIndex: _initialToggleLabel,
+                totalSwitches: 2,
+                labels: const ['Ongoing', 'Past'],
+                onToggle: (index) {
+                  if (index == 0) {
+                    widget._toggleFunction(true);
+                    setState(() {
+                      _initialToggleLabel = 0;
+                    });
+                  } else {
+                    widget._toggleFunction(false);
+                    setState(() {
+                      _initialToggleLabel = 1;
+                    });
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ),

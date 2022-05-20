@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mysql1/mysql1.dart';
 
 import '../dao/base_dao.dart';
@@ -43,6 +45,39 @@ class InternshipService {
       results = await dbConn.query(
           'SELECT * FROM Internship where companyId = ? and isOngoing=1;',
           [company.getUserId]);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+
+    return results.map((e) => Internship.fromMap(e)).toList();
+  }
+
+  Future<List<Internship>> getAllInternships() async {
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results results;
+
+    try {
+      results = await dbConn.query('SELECT * FROM Internship');
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+
+    return results.map((e) => Internship.fromMap(e)).toList();
+  }
+
+  Future<List<Internship>> getStudentNotAppliedInternship(Student user) async {
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results results;
+
+    try {
+      results = await dbConn.query(
+          'SELECT * FROM Internship WHERE id NOT IN (SELECT internshipId FROM '
+          'InternshipApplication WHERE studentId=?);',
+          [user.getUserId]);
     } on MySqlException {
       rethrow;
     } finally {

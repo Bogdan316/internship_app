@@ -5,14 +5,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class ButtonWidget extends StatelessWidget{
   final String text;
   final VoidCallback onClicked;
+  final Uri url;
 
   ButtonWidget({
     Key? key,
     required this.text,
     required this.onClicked,
+    required this.url,
   }) : super(key: key);
 
-  final Uri _url = Uri.parse('https://flutter.dev');
+  //final Uri _url = Uri.parse(link);
+
 
   @override
   Widget build(BuildContext context) => ElevatedButton.icon(
@@ -30,6 +33,7 @@ class ButtonWidget extends StatelessWidget{
   );
 
   void _launchUrl() async {
-    if (!await launchUrl(_url)) throw 'Could not launch $_url';
+    if (!await launchUrl(url)) throw 'Could not launch $url';
   }
+
 }
