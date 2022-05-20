@@ -64,7 +64,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
         : Future.value(<Internship>[]);
     _allInternships = widget._internshipService.getAllInternships();
     _companyProfiles = widget._profileService.getAllCompanyProfiles();
-    _crtProfile = widget._profileService.getStudentProfileById(_crtUser);
+    _crtProfile = widget._profileService.getUserProfileById(_crtUser);
   }
 
   void _toggleOngoing(bool isOngoing) {

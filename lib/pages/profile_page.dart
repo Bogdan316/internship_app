@@ -145,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
         },
       );
       core = await Flowder.download(
-        crtUser.getImageLink!,
+        crtUser.getCvLink!,
         options,
       );
     },
