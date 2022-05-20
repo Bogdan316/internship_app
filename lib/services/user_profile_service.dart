@@ -74,4 +74,68 @@ class UserProfileService {
 
     return result.map((e) => CompanyProfile.fromMap(e)).toList();
   }
+
+  Future<List<StudentProfile>> getAcceptedParticipantsList(
+      Internship internship) async {
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results result;
+
+    try {
+      result = await dbConn.query(
+          "select studentProfile.id, userId, imageLink, fullname, email, cvLink, repo, about from studentProfile join acceptedParticipants on studentProfile.id = acceptedParticipants.profileId where internshipId = ?;",
+          [internship.getId]);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+    if (result.isNotEmpty) {
+      return result.map((e) => StudentProfile.fromMap(e)).toList();
+    } else {
+      return <StudentProfile>[];
+    }
+  }
+
+  Future<List<StudentProfile>> getStudentProfilesByInternshipId(
+      Internship internship) async {
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results result;
+
+    try {
+      result = await dbConn.query(
+          "select id, userId, imageLink, fullname, email, cvLink, repo, about from StudentProfile where userId in (select studentId from InternshipApplication where internshipId = ?);",
+          [internship.getId]);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+
+    return result.map((e) => StudentProfile.fromMap(e)).toList();
+  }
+
+  Future<void> addAcceptedParticipantsList(
+      Internship internship, List<UserProfile> userProfiles) async {
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results result;
+
+    final queryPlaceholder =
+        userProfiles.map((e) => '(NULL, ?, ?, ?)').join(', ');
+    final insertData = userProfiles
+        .map((profile) => [profile.getUserId, profile.getId, internship.getId])
+        .expand((ids) => ids)
+        .toList();
+    try {
+      await dbConn.query(
+          "DELETE FROM acceptedParticipants WHERE internshipId = ?;",
+          [internship.getId]);
+      result = await dbConn.query(
+          "INSERT INTO acceptedParticipants VALUES $queryPlaceholder;",
+          insertData);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+  }
 }
