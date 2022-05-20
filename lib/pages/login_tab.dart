@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import '../base_widgets/custom_elevated_button.dart';
 import '../base_widgets/user_input_row.dart';
@@ -114,6 +115,8 @@ class _LoginTabState extends State<LoginTab> {
                         children: [
                           CustomElevatedButton(
                             onPressed: () async {
+                              // empty cache so photos can be updated
+                              await DefaultCacheManager().emptyCache();
                               final crtUser = await _authService.loginUser();
 
                               // clear the text fields after pressing the button
@@ -140,6 +143,8 @@ class _LoginTabState extends State<LoginTab> {
               ),
               CustomElevatedButton(
                 onPressed: () async {
+                  // empty cache so photos can be updated
+                  await DefaultCacheManager().emptyCache();
                   final crtUser = await _authService.signupUser();
 
                   // clear the text fields after pressing the button

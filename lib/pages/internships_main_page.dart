@@ -5,6 +5,7 @@ import 'package:internship_app_fis/models/user_profile.dart';
 import 'package:internship_app_fis/services/user_profile_service.dart';
 
 import '../base_widgets/main_drawer.dart';
+import '../base_widgets/tag_searchbar.dart';
 import '../models/internship.dart';
 import '../services/internship_service.dart';
 import '../base_widgets/theme_color.dart';
@@ -39,6 +40,8 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
   late User _crtUser;
   // toggles between ongoing and past internships
   var _showOngoing = true;
+  // used for filtering the internship list based on searched tag
+  String? _searchFilter;
 
   FutureOr _updateOngoingInternshipsList() {
     // fetches all the data needed from the database
@@ -80,6 +83,22 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
         elevation: 5,
         backgroundColor: themeData.primaryColor,
         title: const Text('Internship App'),
+        actions: [
+          IconButton(
+            splashRadius: 20,
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: TagSearchDelegate(
+                  (value) => setState(() {
+                    _searchFilter = value;
+                  }),
+                ),
+              );
+            },
+          )
+        ],
       ),
       // trough the last two arguments the toggle button from the drawer
       // filters for the ongoing and past internships
@@ -96,13 +115,21 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
             builder: (ctx, snapshot) {
               if (snapshot.hasData) {
                 // cast the snapshot data to the appropriate types
-                final internships = snapshot.data![0]
+                var internships = snapshot.data![0]
                     .where(
                         (internship) => internship.getIsOngoing == _showOngoing)
                     .toList() as List<Internship>;
                 final profiles = snapshot.data![1] as List<CompanyProfile>;
                 final notAppliedInternships =
                     snapshot.data![2] as List<Internship>;
+
+                if (_searchFilter != null) {
+                  internships = internships
+                      .where((internship) =>
+                          TagUtil.convertTagValueToString(internship.getTag!) ==
+                          _searchFilter)
+                      .toList();
+                }
 
                 if (internships.isNotEmpty) {
                   return RefreshIndicator(
