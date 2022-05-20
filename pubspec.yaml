@@ -74,6 +74,7 @@ dev_dependencies:
   mockito:
   build_runner:
   test:
+  network_image_mock: ^2.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

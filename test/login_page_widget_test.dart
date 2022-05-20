@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:internship_app_fis/models/internship.dart';
+import 'package:internship_app_fis/models/user_profile.dart';
+import 'package:internship_app_fis/pages/login_page.dart';
+import 'package:internship_app_fis/services/internship_service.dart';
+import 'package:internship_app_fis/services/user_profile_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mysql1/mysql1.dart';
@@ -15,13 +21,48 @@ import 'package:internship_app_fis/pages/internships_main_page.dart';
 import 'login_page_widget_test.mocks.dart';
 
 @GenerateMocks([
+  InternshipService,
+  UserProfileService,
   UserService,
+  DefaultCacheManager,
   MySqlConnection
 ], customMocks: [
   MockSpec<NavigatorObserver>(returnNullOnMissingStub: true),
 ])
 void main() {
-  final mockUserService = MockUserService();
+  late MockInternshipService mockInternshipService;
+  late MockUserProfileService mockUserProfileService;
+  late MockNavigatorObserver mockObserver;
+  late MockUserService mockUserService;
+  late MockDefaultCacheManager mockDefaultCacheManager;
+  late CompanyProfile testCompanyProfile;
+  late StudentProfile testStudentProfile;
+
+  setUp(() {
+    mockUserProfileService = MockUserProfileService();
+    mockInternshipService = MockInternshipService();
+    mockObserver = MockNavigatorObserver();
+    mockUserService = MockUserService();
+    mockDefaultCacheManager = MockDefaultCacheManager();
+    testCompanyProfile = CompanyProfile(
+      id: 1,
+      userId: 1,
+      fullname: 'test',
+      about: 'test',
+      email: 'test',
+      imageLink: 'test',
+    );
+    testStudentProfile = StudentProfile(
+      id: 1,
+      userId: 1,
+      fullname: 'test',
+      about: 'test',
+      email: 'test',
+      imageLink: 'test',
+      cvLink: 'teset',
+      repo: 'test',
+    );
+  });
 
   group('LoginPage - Company:', () {
     testWidgets('has signup and login buttons', (WidgetTester tester) async {
@@ -54,7 +95,26 @@ void main() {
     testWidgets(
         'pressing the buttons with no username and password should show a SnackBar',
         (WidgetTester tester) async {
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
+          navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
+        ),
+      );
 
       // switch to Company tab
       var tabs = find.byType(Tab);
@@ -63,7 +123,7 @@ void main() {
 
       var buttons = find.byType(CustomElevatedButton);
       await tester.tap(buttons.first);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       final findSnackBar =
           find.text('The username and password fields are mandatory.');
@@ -76,7 +136,26 @@ void main() {
       final User testUser =
           Company('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
 
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
+          navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
+        ),
+      );
 
       // switch to Company tab
       var tabs = find.byType(Tab);
@@ -110,8 +189,22 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: InternshipApp(mockUserService),
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
           navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
         ),
       );
 
@@ -131,6 +224,13 @@ void main() {
         return Future.value(testUser);
       });
 
+      when(mockInternshipService.getAllInternships())
+          .thenAnswer((_) => Future.value(<Internship>[]));
+      when(mockUserProfileService.getAllCompanyProfiles())
+          .thenAnswer((_) => Future.value(<CompanyProfile>[]));
+      when(mockUserProfileService.getUserProfileById(testUser))
+          .thenAnswer((_) => Future.value(testCompanyProfile));
+
       await tester.tap(buttons.first);
       await tester.pumpAndSettle();
 
@@ -144,7 +244,26 @@ void main() {
       final User testUser =
           Company('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
 
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
+          navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
+        ),
+      );
 
       // switch to Company tab
       var tabs = find.byType(Tab);
@@ -157,6 +276,8 @@ void main() {
       await tester.pumpAndSettle();
 
       var buttons = find.byType(CustomElevatedButton);
+      when(mockDefaultCacheManager.emptyCache())
+          .thenAnswer((_) => Future.value());
       when(mockUserService.addUser(testUser))
           .thenAnswer((_) => throw UserAlreadyExistsException());
 
@@ -171,7 +292,26 @@ void main() {
 
     testWidgets('signup should fail if the password is too short',
         (WidgetTester tester) async {
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
+          navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
+        ),
+      );
 
       // switch to Company tab
       var tabs = find.byType(Tab);
@@ -204,8 +344,22 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: InternshipApp(mockUserService),
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
           navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              CreateUserProfilePage.namedRoute: (ctx) =>
+                  CreateUserProfilePage(args, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
         ),
       );
 
@@ -220,6 +374,8 @@ void main() {
       await tester.pumpAndSettle();
 
       var buttons = find.byType(CustomElevatedButton);
+      when(mockDefaultCacheManager.emptyCache())
+          .thenAnswer((_) => Future.value());
       when(mockUserService.addUser(testUser)).thenAnswer((_) async => () {
             testUser.setUserId(1);
             return;
@@ -256,13 +412,33 @@ void main() {
     testWidgets(
         'pressing the buttons with no username and password should show a SnackBar',
         (WidgetTester tester) async {
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
+          navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
+        ),
+      );
 
       var buttons = find.byType(CustomElevatedButton);
       await tester.tap(buttons.first);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      final findSnackBar = find.text('OK');
+      final findSnackBar =
+          find.text('The username and password fields are mandatory.');
       expect(findSnackBar, findsOneWidget);
     });
 
@@ -272,7 +448,26 @@ void main() {
       final User testUser =
           Student('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
 
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
+          navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
+        ),
+      );
 
       var fields = find.byType(TextField);
       await tester.enterText(fields.first, 'test_user');
@@ -301,8 +496,22 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: InternshipApp(mockUserService),
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
           navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
         ),
       );
 
@@ -317,6 +526,16 @@ void main() {
         return Future.value(testUser);
       });
 
+      when(mockInternshipService
+              .getStudentNotAppliedInternship(testUser as Student))
+          .thenAnswer((_) => Future.value(<Internship>[]));
+      when(mockInternshipService.getAllInternships())
+          .thenAnswer((_) => Future.value(<Internship>[]));
+      when(mockUserProfileService.getAllCompanyProfiles())
+          .thenAnswer((_) => Future.value(<CompanyProfile>[]));
+      when(mockUserProfileService.getUserProfileById(testUser))
+          .thenAnswer((_) => Future.value(testStudentProfile));
+
       await tester.tap(buttons.first);
       await tester.pumpAndSettle();
 
@@ -330,7 +549,26 @@ void main() {
       final User testUser =
           Student('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
 
-      await tester.pumpWidget(InternshipApp(mockUserService));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
+          navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                  args, mockInternshipService, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
+        ),
+      );
 
       var fields = find.byType(TextField);
       await tester.enterText(fields.first, 'test_user');
@@ -338,6 +576,8 @@ void main() {
       await tester.pumpAndSettle();
 
       var buttons = find.byType(CustomElevatedButton);
+      when(mockDefaultCacheManager.emptyCache())
+          .thenAnswer((_) => Future.value());
       when(mockUserService.addUser(testUser))
           .thenAnswer((_) => throw UserAlreadyExistsException());
 
@@ -360,12 +600,24 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: InternshipApp(mockUserService),
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
           navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              CreateUserProfilePage.namedRoute: (ctx) =>
+                  CreateUserProfilePage(args, mockUserProfileService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
         ),
       );
-
-      await tester.pumpWidget(InternshipApp(mockUserService));
 
       var fields = find.byType(TextField);
       await tester.enterText(fields.first, 'test_user');
@@ -373,6 +625,8 @@ void main() {
       await tester.pumpAndSettle();
 
       var buttons = find.byType(CustomElevatedButton);
+      when(mockDefaultCacheManager.emptyCache())
+          .thenAnswer((_) => Future.value());
       when(mockUserService.addUser(testUser)).thenAnswer((_) async => () {
             testUser.setUserId(1);
             return;

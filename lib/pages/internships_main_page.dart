@@ -37,6 +37,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
   late Future<List<Internship>> _allInternships;
   // list of all internships that the student has not applied for
   late Future<List<Internship>> _notAppliedInternships;
+  late Future<UserProfile?> _crtProfile;
   late User _crtUser;
   // toggles between ongoing and past internships
   var _showOngoing = true;
@@ -66,6 +67,9 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
         : Future.value(<Internship>[]);
     _allInternships = widget._internshipService.getAllInternships();
     _companyProfiles = widget._profileService.getAllCompanyProfiles();
+    _crtProfile = widget._pageArgs.containsKey('profile')
+        ? Future.value(widget._pageArgs['profile'] as UserProfile)
+        : widget._profileService.getUserProfileById(_crtUser);
   }
 
   void _toggleOngoing(bool isOngoing) {
@@ -108,12 +112,19 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
         child: Center(
           // used for displaying a progress indicator until the internships are
           // queried
-          child: FutureBuilder<List<List<dynamic>>>(
+          child: FutureBuilder<List<dynamic>>(
             // wait until all the data has been fetched
-            future: Future.wait(
-                [_allInternships, _companyProfiles, _notAppliedInternships]),
+            future: Future.wait([
+              _allInternships,
+              _companyProfiles,
+              _notAppliedInternships,
+              _crtProfile
+            ]),
             builder: (ctx, snapshot) {
               if (snapshot.hasData) {
+                if (!widget._pageArgs.containsKey('profile')) {
+                  widget._pageArgs['profile'] = snapshot.data![3];
+                }
                 // cast the snapshot data to the appropriate types
                 var internships = snapshot.data![0]
                     .where(
