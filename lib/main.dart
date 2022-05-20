@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:internship_app_fis/pages/internship_page.dart';
 import 'package:internship_app_fis/pages/profile_page.dart';
 import 'package:internship_app_fis/services/internship_application_service.dart';
