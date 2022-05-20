@@ -51,9 +51,6 @@ dependencies:
   #pick image
   image_picker: ^0.8.1
 
-  #compressimage:
-  flutter_image_compress: ^1.0.0 #-nullsafety
-
   #store image
   path_provider: ^2.0.1
 

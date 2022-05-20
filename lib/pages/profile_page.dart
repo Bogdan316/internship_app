@@ -34,12 +34,20 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState(){
     super.initState();
+    print(widget._pageArgs);
     crtUser = widget._pageArgs['profile'] as UserProfile;
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
     return Scaffold(
+      appBar: AppBar(
+        elevation: 5,
+        backgroundColor: themeData.primaryColor,
+        title: const Text('Internship App'),
+      ),
       body:
       ListView(
         physics: const BouncingScrollPhysics(),
