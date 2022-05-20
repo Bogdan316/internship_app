@@ -1,21 +1,23 @@
 import 'dart:async';
-
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:internship_app_fis/models/user.dart';
 import 'package:internship_app_fis/pages/create_user_profile_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
-import '/base_widgets/button_widget_download.dart';
+import 'package:flowder/flowder.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String namedRoute = '/profile_page';
-  final Map<String,dynamic>_pageArgs;
+  final Map<String, dynamic> _pageArgs;
 
-  const ProfilePage(this._pageArgs,{Key? key}) : super(key: key);
+  const ProfilePage(this._pageArgs, {Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -23,19 +25,44 @@ class ProfilePage extends StatefulWidget {
 
 const double coverHeight = 180;
 const double profileHeight = 128;
-const top = coverHeight - profileHeight/2;
-const bottom = profileHeight  ;
+const top = coverHeight - profileHeight / 2;
+const bottom = profileHeight;
 
 class _ProfilePageState extends State<ProfilePage> {
   UploadTask? task;
   File? file;
   late UserProfile crtUser;
+  late DownloaderUtils options;
+  late DownloaderCore core;
+  late final String path;
+  late UserProfile? participantProfile;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    print(widget._pageArgs);
-    crtUser = widget._pageArgs['profile'] as UserProfile;
+    crtUser = widget._pageArgs.containsKey('participantProfile')
+        ? widget._pageArgs['participantProfile'] as UserProfile
+        : widget._pageArgs['profile'] as UserProfile;
+    initPlatformState();
+  }
+
+  Future<void> initPlatformState() async {
+    _setPath();
+    if (!mounted) return;
+  }
+
+  void _setPath() async {
+    Directory _path = await getApplicationDocumentsDirectory();
+
+    String _localPath = _path.path + Platform.pathSeparator + 'Download';
+
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+
+    path = _localPath;
   }
 
   @override
@@ -48,8 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: themeData.primaryColor,
         title: const Text('Internship App'),
       ),
-      body:
-      ListView(
+      body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
           Stack(
@@ -59,19 +85,17 @@ class _ProfilePageState extends State<ProfilePage> {
               buildCoverImage(),
               Positioned(
                 top: top,
-                child:
-                Container(
+                child: Container(
                   margin: const EdgeInsets.only(bottom: bottom),
-                  child:
-                  ProfileWidget(
+                  child: ProfileWidget(
                     imagePath: crtUser.getImageLink,
                     onClicked: () async {
                       /// TO DO: EditProfilePage
                       Navigator.of(context).pushReplacementNamed(
-                          CreateUserProfilePage.namedRoute,
-                          arguments: widget._pageArgs,
+                        CreateUserProfilePage.namedRoute,
+                        arguments: widget._pageArgs,
                       );
-                      setState((){});
+                      setState(() {});
                     },
                   ),
                 ),
@@ -80,11 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(height: 80),
           buildName(crtUser),
-          const SizedBox(height: 24),
-          Center(child: buildUpgradeButton(crtUser)),
-          const SizedBox(height: 24),
-          Center(child: buildDownloadButton(crtUser)),
-          const SizedBox(height: 24),
+          if (crtUser.runtimeType == StudentProfile) ..._buildStudentLayout(),
         ],
       ),
     );
@@ -106,14 +126,30 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget buildUpgradeButton(UserProfile user) => ButtonWidget(
     text: 'Repository',
-    onClicked: () {},
-    url: Uri.parse(user.getRepo!),
+    onClicked: () async {
+      await launchUrl(Uri.parse(crtUser.getRepo!));
+    },
   );
 
   Widget buildDownloadButton(UserProfile user) => ButtonWidget(
     text: 'CV',
-    onClicked: () {},
-    url: Uri.parse(user.getCvLink!),
+    onClicked: () async {
+      options = DownloaderUtils(
+        progressCallback: (current, total) {
+          final progress = (current / total) * 100;
+          print('Downloading: $progress');
+        },
+        file: File('$path/test'),
+        progress: ProgressImplementation(),
+        onDone: () {
+          OpenFile.open('$path/test');
+        },
+      );
+      core = await Flowder.download(
+        'https://firebasestorage.googleapis.com/v0/b/internship-app-3b46b.appspot.com/o/Student%2Fcv%2FStudent2?alt=media&token=ee60258b-2230-44fb-b24c-697c22e3e58f',
+        options,
+      );
+    },
   );
 
   Widget buildAbout(UserProfile user) => Container(
@@ -145,12 +181,20 @@ class _ProfilePageState extends State<ProfilePage> {
   );
 
   Future selectFile() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple:false);
-    if(result == null) return;
+    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+    if (result == null) return;
     final path = result.files.single.path!;
 
     setState(() => file = File(path));
   }
 
-  Future uploadFile() async {}
+  List<Widget> _buildStudentLayout() {
+    return [
+      const SizedBox(height: 24),
+      Center(child: buildUpgradeButton(crtUser)),
+      const SizedBox(height: 24),
+      Center(child: buildDownloadButton(crtUser)),
+      const SizedBox(height: 24),
+    ];
+  }
 }
