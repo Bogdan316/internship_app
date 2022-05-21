@@ -10,9 +10,7 @@ class UserProfileService {
 
   UserProfileService(this._dao);
 
-
-  Future<UserProfile?> getUserProfileById(
-      User user) async {
+  Future<UserProfile?> getUserProfileById(User user) async {
     // Returns Future with the entry from the table for username and password
     // if the user exists, if not then null
 
@@ -122,7 +120,7 @@ class UserProfileService {
     final Results result;
 
     final queryPlaceholder =
-    userProfiles.map((e) => '(NULL, ?, ?, ?)').join(', ');
+        userProfiles.map((e) => '(NULL, ?, ?, ?)').join(', ');
     final insertData = userProfiles
         .map((profile) => [profile.getUserId, profile.getId, internship.getId])
         .expand((ids) => ids)
@@ -134,6 +132,22 @@ class UserProfileService {
       result = await dbConn.query(
           "INSERT INTO acceptedParticipants VALUES $queryPlaceholder;",
           insertData);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+  }
+
+  Future<void> updateUserProfile(UserProfile profile) async {
+    final MySqlConnection dbConn = await _dao.initDb;
+
+    try {
+      await dbConn.query(
+          "UPDATE ${profile.runtimeType} SET `userId` = ?, `imageLink` = ?, "
+          "`fullname` = ?, `email` = ?, `cvLink` = ?, `repo` = ?, "
+          "`about` = ? WHERE `id` = ?;",
+          [...profile.toMap().values.toList().sublist(1), profile.getId]);
     } on MySqlException {
       rethrow;
     } finally {

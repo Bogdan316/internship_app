@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:internship_app_fis/pages/create_user_profile_page.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../base_widgets/custom_elevated_button.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
@@ -72,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         elevation: 5,
         backgroundColor: themeData.primaryColor,
-        title: const Text('Internship App'),
+        title: const Text('My Profile'),
       ),
       body: ListView(
         physics: const BouncingScrollPhysics(),
@@ -81,7 +83,10 @@ class _ProfilePageState extends State<ProfilePage> {
             clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
-              buildCoverImage(),
+              buildCoverImage(
+                themeData.primaryColorLight,
+                themeData.primaryColorDark,
+              ),
               Positioned(
                 top: top,
                 child: Container(
@@ -89,7 +94,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: ProfileWidget(
                     imagePath: crtUser.getImageLink,
                     onClicked: () async {
-                      /// TO DO: EditProfilePage
                       Navigator.of(context).pushReplacementNamed(
                         CreateUserProfilePage.namedRoute,
                         arguments: widget._pageArgs,
@@ -102,89 +106,97 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
           const SizedBox(height: 80),
-          buildName(crtUser),
+          buildNameAndEmail(crtUser),
+          buildAbout(crtUser),
           if (crtUser.runtimeType == StudentProfile) ..._buildStudentLayout(),
         ],
       ),
     );
   }
 
-  Widget buildName(UserProfile user) => Column(
-    children: [
-      Text(
-        user.getFullName!,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        user.getEmail!,
-        style: const TextStyle(color: Colors.grey),
-      )
-    ],
-  );
+  Widget buildNameAndEmail(UserProfile user) => Column(
+        children: [
+          Text(
+            user.getFullName!,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            user.getEmail!,
+            style: const TextStyle(color: Colors.grey),
+          )
+        ],
+      );
 
-  Widget buildUpgradeButton(UserProfile user) => ButtonWidget(
-    text: 'Repository',
-    onClicked: () async {
-      await launchUrl(Uri.parse(crtUser.getRepo!));
-    },
-  );
-
-  Widget buildDownloadButton(UserProfile user) => ButtonWidget(
-    text: 'CV',
-    onClicked: () async {
-      options = DownloaderUtils(
-        progressCallback: (current, total) {
-          final progress = (current / total) * 100;
-          print('Downloading: $progress');
-        },
-        file: File('$path/test'),
-        progress: ProgressImplementation(),
-        onDone: () {
-          OpenFile.open('$path/test');
+  Widget buildRepoButton(UserProfile user) => ButtonWidget(
+        text: 'Repository',
+        icon: FontAwesomeIcons.github,
+        onClicked: () async {
+          await launchUrl(Uri.parse(user.getRepo!));
         },
       );
-      core = await Flowder.download(
-        crtUser.getCvLink!,
-        options,
+
+  Widget buildDownloadCvButton(UserProfile user) => ButtonWidget(
+        icon: Icons.download,
+        text: 'CV',
+        onClicked: () async {
+          options = DownloaderUtils(
+            progressCallback: (current, total) {
+              final progress = (current / total) * 100;
+              print('Downloading: $progress');
+            },
+            file: File('$path/test'),
+            progress: ProgressImplementation(),
+            onDone: () {
+              OpenFile.open('$path/test');
+            },
+          );
+          core = await Flowder.download(
+            user.getCvLink!,
+            options,
+          );
+        },
       );
-    },
-  );
 
   Widget buildAbout(UserProfile user) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 48),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'About',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        padding: const EdgeInsets.symmetric(horizontal: 48),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'About',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              user.getAbout!,
+              style: const TextStyle(fontSize: 16, height: 1.4),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          user.getAbout!,
-          style: const TextStyle(fontSize: 16, height: 1.4),
-        ),
-      ],
-    ),
-  );
+      );
 
-  buildCoverImage() => Container(
-    color: Colors.grey,
-    child: Image.network(
-      'https://image.winudf.com/v2/image1/Y29tLm1pay5ncmFkaWVudGJhY2tncm91bmRfc2NyZWVuXzBfMTYyNDI0NDQ0M18wMDM/screen-0.jpg?fakeurl=1&type=.jpg',
-      width: double.infinity,
-      height: coverHeight,
-      fit: BoxFit.cover,
-    ),
-  );
+  buildCoverImage(Color colorStart, Color colorEnd) => Container(
+        width: double.infinity,
+        height: coverHeight,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              colorStart,
+              colorEnd,
+            ],
+          ),
+        ),
+      );
 
   List<Widget> _buildStudentLayout() {
     return [
       const SizedBox(height: 24),
-      Center(child: buildUpgradeButton(crtUser)),
+      Center(child: buildRepoButton(crtUser)),
       const SizedBox(height: 24),
-      Center(child: buildDownloadButton(crtUser)),
+      Center(child: buildDownloadCvButton(crtUser)),
       const SizedBox(height: 24),
     ];
   }
