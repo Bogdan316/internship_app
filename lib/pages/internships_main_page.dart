@@ -52,7 +52,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
     setState(() {
       _notAppliedInternships = _crtUser.runtimeType == Student
           ? widget._internshipService
-              .getStudentNotAppliedInternship(_crtUser as Student)
+          .getStudentNotAppliedInternship(_crtUser as Student)
           : Future.value(<Internship>[]);
       _allInternships = widget._internshipService.getAllInternships();
       _companyProfiles = widget._profileService.getAllCompanyProfiles();
@@ -66,7 +66,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
     _crtUser = widget._pageArgs['user'] as User;
     _notAppliedInternships = _crtUser.runtimeType == Student
         ? widget._internshipService
-            .getStudentNotAppliedInternship(_crtUser as Student)
+        .getStudentNotAppliedInternship(_crtUser as Student)
         : Future.value(<Internship>[]);
     _allInternships = widget._internshipService.getAllInternships();
     _companyProfiles = widget._profileService.getAllCompanyProfiles();
@@ -135,7 +135,15 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                     .toList() as List<Internship>;
                 final profiles = snapshot.data![1] as List<CompanyProfile>;
                 final notAppliedInternships =
-                    snapshot.data![2] as List<Internship>;
+                snapshot.data![2] as List<Internship>;
+
+                if (_searchFilter != null) {
+                  internships = internships
+                      .where((internship) =>
+                  TagUtil.convertTagValueToString(internship.getTag!) ==
+                      _searchFilter)
+                      .toList();
+                }
 
                 if (_searchFilter != null) {
                   internships = internships
@@ -167,11 +175,11 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             // arguments that will be sent to the internship
                             // page
                             final internshipPageArgs =
-                                Map<String, dynamic>.from(widget._pageArgs);
+                            Map<String, dynamic>.from(widget._pageArgs);
                             internshipPageArgs['internship'] = internships[idx];
                             internshipPageArgs['profile'] = profiles.firstWhere(
-                              (profile) =>
-                                  profile.getUserId ==
+                                  (profile) =>
+                              profile.getUserId ==
                                   internships[idx].getCompanyId,
                             );
                             internshipPageArgs['notAppliedInternships'] =
@@ -179,9 +187,9 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             // update the data when coming back from the page
                             await Navigator.of(context)
                                 .pushNamed(
-                                  InternshipPage.namedRoute,
-                                  arguments: internshipPageArgs,
-                                )
+                              InternshipPage.namedRoute,
+                              arguments: internshipPageArgs,
+                            )
                                 .whenComplete(
                                     () => _updateOngoingInternshipsList());
                           },
@@ -196,7 +204,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           visualDensity:
-                              const VisualDensity(horizontal: -1, vertical: -1),
+                          const VisualDensity(horizontal: -1, vertical: -1),
                           leading: ClipOval(
                             child: CachedNetworkImage(
                               height: 50,
@@ -204,13 +212,13 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                               cacheManager: widget._defaultCacheManager,
                               imageUrl: profiles
                                   .firstWhere((profile) =>
-                                      profile.getUserId ==
-                                      internships[idx].getCompanyId)
+                              profile.getUserId ==
+                                  internships[idx].getCompanyId)
                                   .getImageLink!,
                               placeholder: (context, url) =>
-                                  const CircularProgressIndicator(),
+                              const CircularProgressIndicator(),
                               errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
+                              const Icon(Icons.error),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -225,9 +233,9 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             maxLines: 2,
                           ),
                           trailing: notAppliedInternships
-                                      .contains(internships[idx]) &&
-                                  _crtUser.runtimeType == Student &&
-                                  internships[idx].getIsOngoing!
+                              .contains(internships[idx]) &&
+                              _crtUser.runtimeType == Student &&
+                              internships[idx].getIsOngoing!
                               ? const Icon(Icons.check)
                               : null,
                         ),

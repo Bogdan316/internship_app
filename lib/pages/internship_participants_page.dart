@@ -7,6 +7,7 @@ import 'package:internship_app_fis/services/user_profile_service.dart';
 
 import '../base_widgets/custom_elevated_button.dart';
 import '../base_widgets/theme_color.dart';
+import 'applicant_profile_page.dart';
 
 class InternshipParticipantsPage extends StatefulWidget {
   static String namedRoute = '/internship-page-participants';
@@ -15,10 +16,10 @@ class InternshipParticipantsPage extends StatefulWidget {
   final UserProfileService _profileService;
 
   const InternshipParticipantsPage(
-    this._pageArgs,
-    this._profileService, {
-    Key? key,
-  }) : super(key: key);
+      this._pageArgs,
+      this._profileService, {
+        Key? key,
+      }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _InternshipParticipantsPageState();
@@ -105,9 +106,9 @@ class _InternshipParticipantsPageState
                                 width: 50,
                                 imageUrl: snapshot.data![0][idx].getImageLink!,
                                 placeholder: (context, url) =>
-                                    const CircularProgressIndicator(),
+                                const CircularProgressIndicator(),
                                 errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error),
+                                const Icon(Icons.error),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -126,37 +127,48 @@ class _InternshipParticipantsPageState
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 snapshot.data![1]
-                                        .contains(snapshot.data![0][idx])
+                                    .contains(snapshot.data![0][idx])
                                     ? IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            snapshot.data![1]
-                                                .remove(snapshot.data![0][idx]);
-                                          });
-                                        },
-                                        icon: Icon(
-                                          Icons.remove,
-                                          color: themeData.errorColor,
-                                        ),
-                                        splashRadius: 20,
-                                      )
+                                  onPressed: () {
+                                    setState(() {
+                                      snapshot.data![1]
+                                          .remove(snapshot.data![0][idx]);
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.remove,
+                                    color: themeData.errorColor,
+                                  ),
+                                  splashRadius: 20,
+                                )
                                     : IconButton(
-                                        onPressed: snapshot.data![1].length <
-                                                _internship.getParticipantsNum!
-                                            ? () {
-                                                setState(() {
-                                                  snapshot.data![1].add(
-                                                      snapshot.data![0][idx]);
-                                                });
-                                              }
-                                            : null,
-                                        icon: const Icon(
-                                          Icons.add,
-                                        ),
-                                        splashRadius: 20,
-                                      ),
+                                  onPressed: snapshot.data![1].length <
+                                      _internship.getParticipantsNum!
+                                      ? () {
+                                    setState(() {
+                                      snapshot.data![1].add(
+                                          snapshot.data![0][idx]);
+                                    });
+                                  }
+                                      : null,
+                                  icon: const Icon(
+                                    Icons.add,
+                                  ),
+                                  splashRadius: 20,
+                                ),
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    final profilePageArgs =
+                                    Map<String, dynamic>.from(
+                                        widget._pageArgs);
+                                    profilePageArgs['participantProfile'] =
+                                    snapshot.data![0][idx];
+                                    Navigator.of(context).pushNamed(
+                                        ApplicantProfilePage.namedRoute,
+                                        arguments: profilePageArgs);
+                                    CachedNetworkImage.evictFromCache(
+                                        snapshot.data![0][idx].getImageLink!);
+                                  },
                                   icon: const Icon(Icons.more_vert),
                                   splashRadius: 20,
                                 ),

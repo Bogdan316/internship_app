@@ -122,7 +122,7 @@ class UserProfileService {
     final Results result;
 
     final queryPlaceholder =
-        userProfiles.map((e) => '(NULL, ?, ?, ?)').join(', ');
+    userProfiles.map((e) => '(NULL, ?, ?, ?)').join(', ');
     final insertData = userProfiles
         .map((profile) => [profile.getUserId, profile.getId, internship.getId])
         .expand((ids) => ids)

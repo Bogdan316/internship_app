@@ -46,8 +46,6 @@ dependencies:
 
   font_awesome_flutter: ^10.0.0-nullsafety
 
-  flutter_cache_manager:
-
   #image cropper
   image_cropper: ^1.4.1
 
