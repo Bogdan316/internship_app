@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/pages/applied_internships_page.dart';
 import 'package:internship_app_fis/pages/ongoing_internships_page.dart';
 import 'package:internship_app_fis/pages/profile_page.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -115,6 +116,11 @@ class _MainDrawerState extends State<MainDrawer> {
       'title': 'My Internships',
       'route': OngoingInternshipsPage.namedRoute,
       'icon': Icons.settings
+    },
+    {
+      'title': 'My Applications',
+      'route': AppliedInternshipsPage.namedRoute,
+      'icon': Icons.check
     }
   ];
 
@@ -136,7 +142,7 @@ class _MainDrawerState extends State<MainDrawer> {
         ),
       ),
       backgroundColor:
-          ColorUtil.lightenColor(Theme.of(context).primaryColor, 0.85),
+      ColorUtil.lightenColor(Theme.of(context).primaryColor, 0.85),
       child: Container(
         alignment: Alignment.centerLeft,
         margin: const EdgeInsets.all(20),
@@ -150,11 +156,11 @@ class _MainDrawerState extends State<MainDrawer> {
               ...drawerItems
                   .map(
                     (item) => DrawerListTile(
-                        item['icon']! as IconData,
-                        item['title']! as String,
-                        item['route']! as String,
-                        widget._pageArgs),
-                  )
+                    item['icon']! as IconData,
+                    item['title']! as String,
+                    item['route']! as String,
+                    widget._pageArgs),
+              )
                   .toList(),
               // toggles between the ongoing and past internships from the
               // main page
