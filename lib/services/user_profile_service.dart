@@ -10,7 +10,9 @@ class UserProfileService {
 
   UserProfileService(this._dao);
 
-  Future<UserProfile?> getUserProfileById(User user) async {
+
+  Future<UserProfile?> getUserProfileById(
+      User user) async {
     // Returns Future with the entry from the table for username and password
     // if the user exists, if not then null
 
@@ -19,8 +21,9 @@ class UserProfileService {
 
     try {
       result = await dbConn.query(
-          "SELECT * FROM ${user.runtimeType}Profile WHERE id = ?",
+          "SELECT * FROM ${user.runtimeType}Profile WHERE id = ?;",
           [user.getUserId]);
+      print(result.first);
     } on MySqlException {
       rethrow;
     } finally {

@@ -41,6 +41,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
   late Future<List<Internship>> _notAppliedInternships;
   late Future<UserProfile?> _crtProfile;
   late User _crtUser;
+  late Future<UserProfile?> _crtProfile;
   // toggles between ongoing and past internships
   var _showOngoing = true;
   // used for filtering the internship list based on searched tag
