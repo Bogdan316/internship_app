@@ -52,8 +52,11 @@ class InternshipApp extends StatelessWidget {
               args, InternshipService(BaseDao()), DefaultCacheManager()),
           AddNewInternshipPage.namedRoute: (ctx) =>
               AddNewInternshipPage(args, InternshipService(BaseDao())),
-          InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(args,
-              InternshipService(BaseDao()), UserProfileService(BaseDao())),
+          InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+              args,
+              InternshipService(BaseDao()),
+              UserProfileService(BaseDao()),
+              DefaultCacheManager()),
           InternshipPage.namedRoute: (ctx) =>
               InternshipPage(args, InternshipApplicationService(BaseDao())),
           CreateUserProfilePage.namedRoute: (ctx) =>

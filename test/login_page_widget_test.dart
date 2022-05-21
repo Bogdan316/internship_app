@@ -104,7 +104,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(
@@ -145,7 +149,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(
@@ -196,7 +204,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(
@@ -253,7 +265,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(
@@ -301,7 +317,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(
@@ -421,7 +441,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(
@@ -457,7 +481,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(
@@ -503,7 +531,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(
@@ -558,7 +590,11 @@ void main() {
 
             var routes = <String, WidgetBuilder>{
               InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
-                  args, mockInternshipService, mockUserProfileService),
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
             };
 
             return MaterialPageRoute(

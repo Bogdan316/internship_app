@@ -70,6 +70,7 @@ void main() {
                     args,
                     mockInternshipService,
                     mockUserProfileService,
+                    mockDefaultCacheManager,
                   ),
               AddNewInternshipPage.namedRoute: (ctx) =>
                   AddNewInternshipPage(args, mockInternshipService),

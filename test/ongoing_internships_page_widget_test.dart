@@ -98,6 +98,7 @@ void main() {
                     args,
                     mockInternshipService,
                     mockUserProfileService,
+                    mockDefaultCacheManager,
                   ),
             };
 

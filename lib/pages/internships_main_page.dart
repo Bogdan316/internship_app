@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:internship_app_fis/models/user_profile.dart';
 import 'package:internship_app_fis/services/user_profile_service.dart';
 
@@ -20,9 +21,10 @@ class InternshipsMainPage extends StatefulWidget {
   final InternshipService _internshipService;
   final UserProfileService _profileService;
   final Map<String, dynamic> _pageArgs;
+  final DefaultCacheManager _defaultCacheManager;
 
-  const InternshipsMainPage(
-      this._pageArgs, this._internshipService, this._profileService,
+  const InternshipsMainPage(this._pageArgs, this._internshipService,
+      this._profileService, this._defaultCacheManager,
       {Key? key})
       : super(key: key);
 
@@ -198,6 +200,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             child: CachedNetworkImage(
                               height: 50,
                               width: 50,
+                              cacheManager: widget._defaultCacheManager,
                               imageUrl: profiles
                                   .firstWhere((profile) =>
                                       profile.getUserId ==
