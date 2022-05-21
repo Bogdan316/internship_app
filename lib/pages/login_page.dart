@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'login_tab.dart';
 import '../services/user_service.dart';
 
 class LoginPage extends StatelessWidget {
   final UserService _userService;
-  const LoginPage(this._userService, {Key? key}) : super(key: key);
+  final DefaultCacheManager _cacheManager;
+  const LoginPage(this._userService, this._cacheManager, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +59,8 @@ class LoginPage extends StatelessWidget {
         body: TabBarView(
           children: [
             // Select the user's role based on the tab
-            LoginTab('Student', _userService),
-            LoginTab('Company', _userService),
+            LoginTab('Student', _userService, _cacheManager),
+            LoginTab('Company', _userService, _cacheManager),
           ],
         ),
       ),
