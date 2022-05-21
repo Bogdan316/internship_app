@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:internship_app_fis/pages/internship_page.dart';
+import 'package:internship_app_fis/pages/internship_participants_page.dart';
 import 'package:internship_app_fis/pages/profile_page.dart';
 import 'package:internship_app_fis/services/internship_application_service.dart';
 import 'package:internship_app_fis/services/user_profile_service.dart';
@@ -58,6 +59,8 @@ class InternshipApp extends StatelessWidget {
           CreateUserProfilePage.namedRoute: (ctx) =>
               CreateUserProfilePage(args, UserProfileService(BaseDao())),
           ProfilePage.namedRoute: (ctx) => ProfilePage(args),
+          InternshipParticipantsPage.namedRoute: (ctx) =>
+              InternshipParticipantsPage(args, UserProfileService(BaseDao())),
         };
 
         return MaterialPageRoute(

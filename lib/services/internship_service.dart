@@ -54,6 +54,26 @@ class InternshipService {
     return results.map((e) => Internship.fromMap(e)).toList();
   }
 
+  Future<List<Internship>> getPastInternshipsByStudentId(Student student) async {
+    // Returns a future containing a list of internships for the provided
+    // company id
+
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results results;
+
+    try {
+      results = await dbConn.query(
+          'SELECT * FROM Internship where studentId = ? and isOngoing=0;',
+          [student.getUserId]);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+
+    return results.map((e) => Internship.fromMap(e)).toList();
+  }
+
   Future<List<Internship>> getAllInternships() async {
     final MySqlConnection dbConn = await _dao.initDb;
     final Results results;
