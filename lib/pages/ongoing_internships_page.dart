@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:internship_app_fis/models/user_profile.dart';
 import 'package:internship_app_fis/pages/internship_participants_page.dart';
 import 'package:mysql1/mysql1.dart';
@@ -18,8 +19,10 @@ class OngoingInternshipsPage extends StatefulWidget {
 
   final InternshipService _internshipService;
   final Map<String, dynamic> _pageArgs;
+  final DefaultCacheManager _cacheManager;
 
-  const OngoingInternshipsPage(this._pageArgs, this._internshipService,
+  const OngoingInternshipsPage(
+      this._pageArgs, this._internshipService, this._cacheManager,
       {Key? key})
       : super(key: key);
 
@@ -106,6 +109,7 @@ class _OngoingInternshipsPageState extends State<OngoingInternshipsPage> {
                             const VisualDensity(horizontal: -1, vertical: -1),
                         leading: ClipOval(
                           child: CachedNetworkImage(
+                            cacheManager: widget._cacheManager,
                             height: 50,
                             width: 50,
                             imageUrl: _crtCompanyProfile.getImageLink!,

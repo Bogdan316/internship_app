@@ -2,13 +2,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:internship_app_fis/pages/applicant_profile_page.dart';
 import 'package:internship_app_fis/pages/internship_page.dart';
 import 'package:internship_app_fis/pages/internship_participants_page.dart';
 import 'package:internship_app_fis/pages/profile_page.dart';
 import 'package:internship_app_fis/services/internship_application_service.dart';
 import 'package:internship_app_fis/services/user_profile_service.dart';
 import 'package:internship_app_fis/pages/ongoing_internships_page.dart';
+import 'package:internship_app_fis/pages/applicant_profile_page.dart';
 
 import '../base_widgets/theme_color.dart';
 import '../dao/base_dao.dart';

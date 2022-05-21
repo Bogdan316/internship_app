@@ -98,7 +98,7 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
               showSearch(
                 context: context,
                 delegate: TagSearchDelegate(
-                      (value) => setState(() {
+                  (value) => setState(() {
                     _searchFilter = value;
                   }),
                 ),
@@ -142,6 +142,14 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                       .where((internship) =>
                   TagUtil.convertTagValueToString(internship.getTag!) ==
                       _searchFilter)
+                      .toList();
+                }
+
+                if (_searchFilter != null) {
+                  internships = internships
+                      .where((internship) =>
+                          TagUtil.convertTagValueToString(internship.getTag!) ==
+                          _searchFilter)
                       .toList();
                 }
 

@@ -1,3 +1,7 @@
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:internship_app_fis/models/user_profile.dart';
+import 'package:internship_app_fis/pages/login_page.dart';
+import 'package:internship_app_fis/services/user_profile_service.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:mockito/mockito.dart';
@@ -21,6 +25,8 @@ import 'add_new_internship_page_widget_test.mocks.dart';
 @GenerateMocks([
   UserService,
   InternshipService,
+  DefaultCacheManager,
+  UserProfileService,
   AuthService
 ], customMocks: [
   MockSpec<Results>(unsupportedMembers: {#fold}),
@@ -30,6 +36,8 @@ void main() {
   late MockInternshipService mockInternshipService;
   late MockNavigatorObserver mockObserver;
   late MockUserService mockUserService;
+  late MockUserProfileService mockUserProfileService;
+  late MockDefaultCacheManager mockDefaultCacheManager;
   late User testUser;
   late Map<String, dynamic> pageArgs;
 
@@ -38,6 +46,8 @@ void main() {
     mockInternshipService = MockInternshipService();
     mockObserver = MockNavigatorObserver();
     mockUserService = MockUserService();
+    mockUserProfileService = MockUserProfileService();
+    mockDefaultCacheManager = MockDefaultCacheManager();
     // user with the encrypted value of the 'test_pass' password
     testUser = Company('test_user', 'c94d65f02a652d11c2e5c2e1ccf38dce5a076e1e');
   });
@@ -47,9 +57,31 @@ void main() {
         'pressing the add internship link from the drawer should redirect to this page',
         (WidgetTester tester) async {
       await tester.pumpWidget(
+        // create a copy of the app with new routes so the internship service
+        // can be mocked
         MaterialApp(
-          home: InternshipApp(mockUserService),
+          home: LoginPage(mockUserService, mockDefaultCacheManager),
           navigatorObservers: [mockObserver],
+          onGenerateRoute: (settings) {
+            final args = settings.arguments as Map<String, dynamic>;
+
+            var routes = <String, WidgetBuilder>{
+              InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+                    args,
+                    mockInternshipService,
+                    mockUserProfileService,
+                    mockDefaultCacheManager,
+                  ),
+              AddNewInternshipPage.namedRoute: (ctx) =>
+                  AddNewInternshipPage(args, mockInternshipService),
+            };
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return routes[settings.name]!(context);
+              },
+            );
+          },
         ),
       );
 
@@ -68,6 +100,22 @@ void main() {
         testUser.setUserId(1);
         return Future.value(testUser);
       });
+
+      final testCompanyProfile = CompanyProfile(
+        id: 1,
+        userId: 1,
+        fullname: 'test',
+        about: 'test',
+        email: 'test',
+        imageLink: 'test',
+      );
+
+      when(mockInternshipService.getAllInternships())
+          .thenAnswer((_) => Future.value(<Internship>[]));
+      when(mockUserProfileService.getAllCompanyProfiles())
+          .thenAnswer((_) => Future.value(<CompanyProfile>[]));
+      when(mockUserProfileService.getUserProfileById(testUser))
+          .thenAnswer((_) => Future.value(testCompanyProfile));
 
       await tester.tap(buttons.first);
       await tester.pumpAndSettle();
