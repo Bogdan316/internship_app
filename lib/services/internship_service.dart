@@ -179,5 +179,21 @@ class InternshipService {
     return results.map((e) => Internship.fromMap(e)).toList();
   }
 
-  
+  Future<List<Internship>> deleteStudentAppliedInternship(
+      Student user, Internship internship) async {
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results results;
+
+    try {
+      results = await dbConn.query(
+          'DELETE FROM InternshipApplication WHERE studentId=? and internshipId=?;',
+          [user.getUserId, internship.getId]);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+
+    return results.map((e) => Internship.fromMap(e)).toList();
+  }
 }
