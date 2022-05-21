@@ -46,8 +46,6 @@ dependencies:
 
   font_awesome_flutter: ^10.0.0-nullsafety
 
-  flutter_cache_manager:
-
   #image cropper
   image_cropper: ^1.4.1
 
@@ -58,7 +56,7 @@ dependencies:
   path_provider: ^2.0.1
 
   url_launcher: ^6.0.12
-
+  flutter_cache_manager:
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -74,6 +72,7 @@ dev_dependencies:
   mockito:
   build_runner:
   test:
+  network_image_mock: ^2.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

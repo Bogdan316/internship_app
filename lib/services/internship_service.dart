@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:internship_app_fis/models/user_profile.dart';
 import 'package:mysql1/mysql1.dart';
 
 import '../dao/base_dao.dart';
@@ -54,7 +55,8 @@ class InternshipService {
     return results.map((e) => Internship.fromMap(e)).toList();
   }
 
-  Future<List<Internship>> getPastInternshipsByStudentId(Student student) async {
+  Future<List<Internship>> getPastInternshipsByStudentId(
+      Student student) async {
     // Returns a future containing a list of internships for the provided
     // company id
 
@@ -96,7 +98,7 @@ class InternshipService {
     try {
       results = await dbConn.query(
           'SELECT * FROM Internship WHERE id NOT IN (SELECT internshipId FROM '
-          'InternshipApplication WHERE studentId=?);',
+              'InternshipApplication WHERE studentId=?);',
           [user.getUserId]);
     } on MySqlException {
       rethrow;
@@ -132,13 +134,31 @@ class InternshipService {
       queryValues.add(internship.getId);
       await dbConn.query(
           'UPDATE Internship SET `companyId` = ?, `title` = ?, '
-          '`description` = ?, `requirements` = ?, `fromDate` = ?, `toDate` = ?, '
-          '`participantsNum` = ?, `tag` = ?, `isOngoing` = ? WHERE `id` = ?;',
+              '`description` = ?, `requirements` = ?, `fromDate` = ?, `toDate` = ?, '
+              '`participantsNum` = ?, `tag` = ?, `isOngoing` = ? WHERE `id` = ?;',
           queryValues);
     } on MySqlException {
       rethrow;
     } finally {
       dbConn.close();
     }
+  }
+
+  Future<List<Internship>> getStudentPastInternshipsById(int id) async {
+    final MySqlConnection dbConn = await _dao.initDb;
+    final Results results;
+
+    try {
+      results = await dbConn.query(
+          'SELECT * FROM Internship WHERE id IN (SELECT internshipId FROM '
+              'InternshipApplication WHERE studentId=?) and isOngoing = 0;',
+          [id]);
+    } on MySqlException {
+      rethrow;
+    } finally {
+      dbConn.close();
+    }
+
+    return results.map((e) => Internship.fromMap(e)).toList();
   }
 }

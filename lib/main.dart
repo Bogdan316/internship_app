@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:internship_app_fis/pages/applicant_profile_page.dart';
 import 'package:internship_app_fis/pages/internship_page.dart';
 import 'package:internship_app_fis/pages/internship_participants_page.dart';
 import 'package:internship_app_fis/pages/profile_page.dart';
@@ -43,22 +45,27 @@ class InternshipApp extends StatelessWidget {
           const Color(0xFF01135d),
         ),
       ),
-      home: LoginPage(_userService),
+      home: LoginPage(_userService, DefaultCacheManager()),
       onGenerateRoute: (settings) {
         final args = settings.arguments as Map<String, dynamic>;
 
         var routes = <String, WidgetBuilder>{
-          OngoingInternshipsPage.namedRoute: (ctx) =>
-              OngoingInternshipsPage(args, InternshipService(BaseDao())),
+          OngoingInternshipsPage.namedRoute: (ctx) => OngoingInternshipsPage(
+              args, InternshipService(BaseDao()), DefaultCacheManager()),
           AddNewInternshipPage.namedRoute: (ctx) =>
               AddNewInternshipPage(args, InternshipService(BaseDao())),
-          InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(args,
-              InternshipService(BaseDao()), UserProfileService(BaseDao())),
+          InternshipsMainPage.namedRoute: (ctx) => InternshipsMainPage(
+              args,
+              InternshipService(BaseDao()),
+              UserProfileService(BaseDao()),
+              DefaultCacheManager()),
           InternshipPage.namedRoute: (ctx) =>
               InternshipPage(args, InternshipApplicationService(BaseDao())),
           CreateUserProfilePage.namedRoute: (ctx) =>
               CreateUserProfilePage(args, UserProfileService(BaseDao())),
           ProfilePage.namedRoute: (ctx) => ProfilePage(args),
+          ApplicantProfilePage.namedRoute: (ctx) => ApplicantProfilePage(args,
+              InternshipService(BaseDao()), UserProfileService(BaseDao())),
           InternshipParticipantsPage.namedRoute: (ctx) =>
               InternshipParticipantsPage(args, UserProfileService(BaseDao())),
         };

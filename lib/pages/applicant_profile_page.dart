@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../base_widgets/theme_color.dart';
 import '../models/internship.dart';
@@ -11,21 +12,25 @@ import '../services/user_profile_service.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flowder/flowder.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'internship_page.dart';
+
 class ApplicantProfilePage extends StatefulWidget {
-  static const String namedRoute = '/profile_page';
+  static const String namedRoute = '/applicant-profile-page';
   final Map<String, dynamic> _pageArgs;
 
   final InternshipService _internshipService;
   final UserProfileService _profileService;
 
-  const ApplicantProfilePage(this._pageArgs, this._internshipService,this._profileService,{Key? key}) : super(key: key);
+  const ApplicantProfilePage(
+      this._pageArgs, this._internshipService, this._profileService,
+      {Key? key})
+      : super(key: key);
 
   @override
   _ApplicantProfilePageState createState() => _ApplicantProfilePageState();
@@ -39,35 +44,22 @@ const bottom = profileHeight;
 class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
   UploadTask? task;
   File? file;
-  late UserProfile crtUser;
+  late StudentProfile _studentProfile;
   late DownloaderUtils options;
   late DownloaderCore core;
   late final String path;
   late UserProfile? participantProfile;
 
   late Future<List<Internship>> _previousInternships;
-  late Future<UserProfile?> _crtProfile;
-  //late Future<List<Internship>> _allInternships;
   late Future<List<CompanyProfile>> _companyProfiles;
-
-
-  FutureOr _updatePreviousInternshipsList() {
-    setState(() {
-      _previousInternships = widget._internshipService
-          .getPastInternshipsByStudentId(crtUser as Student);
-     // _allInternships = widget._internshipService.getAllInternships();
-      _companyProfiles = widget._profileService.getAllCompanyProfiles();
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    crtUser = widget._pageArgs.containsKey('participantProfile')
-        ? widget._pageArgs['participantProfile'] as UserProfile
-        : widget._pageArgs['profile'] as UserProfile;
     initPlatformState();
-    //_allInternships = widget._internshipService.getAllInternships();
+    _studentProfile = widget._pageArgs['participantProfile'] as StudentProfile;
+    _previousInternships = widget._internshipService
+        .getStudentPastInternshipsById(_studentProfile.getUserId!);
     _companyProfiles = widget._profileService.getAllCompanyProfiles();
   }
 
@@ -98,120 +90,143 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
       appBar: AppBar(
         elevation: 5,
         backgroundColor: themeData.primaryColor,
-        title: const Text('Internship App'),
+        title: Text(_studentProfile.getFullName!),
       ),
       body: ListView(
-        physics: const BouncingScrollPhysics(),
         children: [
           Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
-              buildCoverImage(),
+              buildCoverImage(
+                themeData.primaryColorLight,
+                themeData.primaryColorDark,
+              ),
               Positioned(
                 top: top,
                 child: Container(
                   margin: const EdgeInsets.only(bottom: bottom),
                   child: ProfileWidget(
-                    imagePath: crtUser.getImageLink,
+                    imagePath: _studentProfile.getImageLink,
                     onClicked: (){},
+                    isEdit: true,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 80),
-          buildName(crtUser),
-          if (crtUser.runtimeType == StudentProfile) ..._buildStudentLayout(),
+          buildNameAndEmail(_studentProfile),
+          buildAbout(_studentProfile),
+          ..._buildStudentLayout(_studentProfile),
           Center(
             child: FutureBuilder<List<dynamic>>(
-              future: Future.wait([
-                _previousInternships,
-                _companyProfiles,
-                _crtProfile,
-              ]),
+              future: Future.wait(
+                [
+                  _previousInternships,
+                  _companyProfiles,
+                ],
+              ),
               builder: (ctx, snapshot) {
                 if (snapshot.hasData) {
-                  if (!widget._pageArgs.containsKey('profile')) {
-                    widget._pageArgs['profile'] = snapshot.data![2];
-                  }
-                  final internships = snapshot.data![0]
-                      .toList() as List<Internship>;
+                  final internships =
+                  snapshot.data![0].toList() as List<Internship>;
                   final profiles = snapshot.data![1] as List<CompanyProfile>;
 
                   if (internships.isNotEmpty) {
-                    return RefreshIndicator(
-                      onRefresh: () async => setState(() {
-                        _updatePreviousInternshipsList();
-                      }),
-                      child: ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: internships.length,
-                        itemBuilder: (ctx, idx) => Card(
-                          elevation: 6,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 24,
-                          ),
-                          child: ListTile(
-                            onTap: () async {
-                              // arguments that will be sent to the internship
-                              // page
-                              final internshipPageArgs =
-                              Map<String, dynamic>.from(widget._pageArgs);
-                              internshipPageArgs['internship'] = internships[idx];
-                              internshipPageArgs['profile'] = profiles.firstWhere(
-                                    (profile) =>
-                                profile.getUserId ==
-                                    internships[idx].getCompanyId,
-                              );
-                              internshipPageArgs['previousInternships'] =
-                                  internships;
-                            },
-                            // the unique id from the database is used as a key
-                            // to ensure that the tiles are rebuilt after one
-                            // of them is deleted
-                            key: Key(internships[idx].getId!.toString()),
-                            iconColor: themeData.primaryColorDark,
-                            tileColor: ColorUtil.lightenColor(
-                                themeData.primaryColor, 0.9),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            visualDensity:
-                            const VisualDensity(horizontal: -1, vertical: -1),
-                            leading: ClipOval(
-                              child: CachedNetworkImage(
-                                height: 50,
-                                width: 50,
-                                imageUrl: profiles
-                                    .firstWhere((profile) =>
-                                profile.getUserId ==
-                                    internships[idx].getCompanyId)
-                                    .getImageLink!,
-                                placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            title: Text(
-                              internships[idx].getTitle!,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            subtitle: Text(
-                              internships[idx].getDescription!,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                            ),
+                    return Column(
+                      children: [
+                        const Text(
+                          'Previous internships',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                        SizedBox(
+                          height: 400,
+                          child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: internships.length,
+                            itemBuilder: (ctx, idx) => Card(
+                              elevation: 6,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 24,
+                              ),
+                              child: ListTile(
+                                onTap: () async {
+                                  // arguments that will be sent to the internship
+                                  // page
+                                  final internshipPageArgs =
+                                  Map<String, dynamic>.from(
+                                      widget._pageArgs);
+                                  internshipPageArgs['internship'] =
+                                  internships[idx];
+                                  internshipPageArgs['profile'] =
+                                      profiles.firstWhere(
+                                            (profile) =>
+                                        profile.getUserId ==
+                                            internships[idx].getCompanyId,
+                                      );
+                                  internshipPageArgs['previousInternships'] =
+                                      internships;
+                                  internshipPageArgs['notAppliedInternships'] =
+                                  <Internship>[];
+                                  Navigator.of(context).pushNamed(
+                                    InternshipPage.namedRoute,
+                                    arguments: internshipPageArgs,
+                                  );
+                                },
+                                // the unique id from the database is used as a key
+                                // to ensure that the tiles are rebuilt after one
+                                // of them is deleted
+                                key: Key(internships[idx].getId!.toString()),
+                                iconColor: themeData.primaryColorDark,
+                                tileColor: ColorUtil.lightenColor(
+                                    themeData.primaryColor, 0.9),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                visualDensity: const VisualDensity(
+                                    horizontal: -1, vertical: -1),
+                                leading: ClipOval(
+                                  child: CachedNetworkImage(
+                                    height: 50,
+                                    width: 50,
+                                    imageUrl: profiles
+                                        .firstWhere((profile) =>
+                                    profile.getUserId ==
+                                        internships[idx].getCompanyId)
+                                        .getImageLink!,
+                                    placeholder: (context, url) =>
+                                    const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                title: Text(
+                                  internships[idx].getTitle!,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                subtitle: Text(
+                                  internships[idx].getDescription!,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     );
                   } else {
                     return LayoutBuilder(
@@ -219,8 +234,8 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
                         margin: const EdgeInsets.all(20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
+                          children: const [
+                            Text(
                               'No previous internships to show',
                               style: TextStyle(
                                 fontSize: 20,
@@ -238,13 +253,12 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
               },
             ),
           ),
-
         ],
       ),
     );
   }
 
-  Widget buildName(UserProfile user) => Column(
+  Widget buildNameAndEmail(UserProfile user) => Column(
     children: [
       Text(
         user.getFullName!,
@@ -258,16 +272,16 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
     ],
   );
 
-  Widget buildUpgradeButton(UserProfile user) => ButtonWidget(
+  Widget buildRepoButton(UserProfile user) => ButtonWidget(
     text: 'Repository',
     onClicked: () async {
-      await launchUrl(Uri.parse(crtUser.getRepo!));
+      await launchUrl(Uri.parse(user.getRepo!));
     },
   );
 
-  Widget buildDownloadButton(UserProfile user) => ButtonWidget(
-    text: 'CV',
-    onClicked: () async {
+  Widget buildDownloadCvButton(UserProfile user) => CustomElevatedButton(
+    label: 'CV',
+    onPressed: () async {
       options = DownloaderUtils(
         progressCallback: (current, total) {
           final progress = (current / total) * 100;
@@ -280,10 +294,11 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
         },
       );
       core = await Flowder.download(
-        crtUser.getCvLink!,
+        user.getCvLink!,
         options,
       );
     },
+    primary: Theme.of(context).primaryColorDark,
   );
 
   Widget buildAbout(UserProfile user) => Container(
@@ -304,30 +319,28 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
     ),
   );
 
-  buildCoverImage() => Container(
-    color: Colors.grey,
-    child: Image.network(
-      'https://image.winudf.com/v2/image1/Y29tLm1pay5ncmFkaWVudGJhY2tncm91bmRfc2NyZWVuXzBfMTYyNDI0NDQ0M18wMDM/screen-0.jpg?fakeurl=1&type=.jpg',
-      width: double.infinity,
-      height: coverHeight,
-      fit: BoxFit.cover,
+  buildCoverImage(Color colorStart, Color colorEnd) => Container(
+    // color: Colors.grey,
+    width: double.infinity,
+    height: coverHeight,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.bottomCenter,
+        end: Alignment.topCenter,
+        colors: [
+          colorStart,
+          colorEnd,
+        ],
+      ),
     ),
   );
 
-  Future selectFile() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
-    if (result == null) return;
-    final path = result.files.single.path!;
-
-    setState(() => file = File(path));
-  }
-
-  List<Widget> _buildStudentLayout() {
+  List<Widget> _buildStudentLayout(StudentProfile profile) {
     return [
       const SizedBox(height: 24),
-      Center(child: buildUpgradeButton(crtUser)),
+      Center(child: buildRepoButton(profile)),
       const SizedBox(height: 24),
-      Center(child: buildDownloadButton(crtUser)),
+      Center(child: buildDownloadCvButton(profile)),
       const SizedBox(height: 24),
     ];
   }

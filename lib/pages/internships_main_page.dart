@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:internship_app_fis/models/user_profile.dart';
 import 'package:internship_app_fis/services/user_profile_service.dart';
 
 import '../base_widgets/main_drawer.dart';
+import '../base_widgets/tag_searchbar.dart';
 import '../models/internship.dart';
 import '../services/internship_service.dart';
 import '../base_widgets/theme_color.dart';
@@ -19,9 +21,10 @@ class InternshipsMainPage extends StatefulWidget {
   final InternshipService _internshipService;
   final UserProfileService _profileService;
   final Map<String, dynamic> _pageArgs;
+  final DefaultCacheManager _defaultCacheManager;
 
-  const InternshipsMainPage(
-      this._pageArgs, this._internshipService, this._profileService,
+  const InternshipsMainPage(this._pageArgs, this._internshipService,
+      this._profileService, this._defaultCacheManager,
       {Key? key})
       : super(key: key);
 
@@ -36,17 +39,19 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
   late Future<List<Internship>> _allInternships;
   // list of all internships that the student has not applied for
   late Future<List<Internship>> _notAppliedInternships;
-  late User _crtUser;
   late Future<UserProfile?> _crtProfile;
+  late User _crtUser;
   // toggles between ongoing and past internships
   var _showOngoing = true;
+  // used for filtering the internship list based on searched tag
+  String? _searchFilter;
 
   FutureOr _updateOngoingInternshipsList() {
     // fetches all the data needed from the database
     setState(() {
       _notAppliedInternships = _crtUser.runtimeType == Student
           ? widget._internshipService
-              .getStudentNotAppliedInternship(_crtUser as Student)
+          .getStudentNotAppliedInternship(_crtUser as Student)
           : Future.value(<Internship>[]);
       _allInternships = widget._internshipService.getAllInternships();
       _companyProfiles = widget._profileService.getAllCompanyProfiles();
@@ -60,11 +65,13 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
     _crtUser = widget._pageArgs['user'] as User;
     _notAppliedInternships = _crtUser.runtimeType == Student
         ? widget._internshipService
-            .getStudentNotAppliedInternship(_crtUser as Student)
+        .getStudentNotAppliedInternship(_crtUser as Student)
         : Future.value(<Internship>[]);
     _allInternships = widget._internshipService.getAllInternships();
     _companyProfiles = widget._profileService.getAllCompanyProfiles();
-    _crtProfile = widget._profileService.getUserProfileById(_crtUser);
+    _crtProfile = widget._pageArgs.containsKey('profile')
+        ? Future.value(widget._pageArgs['profile'] as UserProfile)
+        : widget._profileService.getUserProfileById(_crtUser);
   }
 
   void _toggleOngoing(bool isOngoing) {
@@ -82,6 +89,22 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
         elevation: 5,
         backgroundColor: themeData.primaryColor,
         title: const Text('Internship App'),
+        actions: [
+          IconButton(
+            splashRadius: 20,
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: TagSearchDelegate(
+                      (value) => setState(() {
+                    _searchFilter = value;
+                  }),
+                ),
+              );
+            },
+          )
+        ],
       ),
       // trough the last two arguments the toggle button from the drawer
       // filters for the ongoing and past internships
@@ -103,14 +126,23 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
               if (snapshot.hasData) {
                 if (!widget._pageArgs.containsKey('profile')) {
                   widget._pageArgs['profile'] = snapshot.data![3];
-                } // cast the snapshot data to the appropriate types
-                final internships = snapshot.data![0]
+                }
+                // cast the snapshot data to the appropriate types
+                var internships = snapshot.data![0]
                     .where(
                         (internship) => internship.getIsOngoing == _showOngoing)
                     .toList() as List<Internship>;
                 final profiles = snapshot.data![1] as List<CompanyProfile>;
                 final notAppliedInternships =
-                    snapshot.data![2] as List<Internship>;
+                snapshot.data![2] as List<Internship>;
+
+                if (_searchFilter != null) {
+                  internships = internships
+                      .where((internship) =>
+                  TagUtil.convertTagValueToString(internship.getTag!) ==
+                      _searchFilter)
+                      .toList();
+                }
 
                 if (internships.isNotEmpty) {
                   return RefreshIndicator(
@@ -134,11 +166,11 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             // arguments that will be sent to the internship
                             // page
                             final internshipPageArgs =
-                                Map<String, dynamic>.from(widget._pageArgs);
+                            Map<String, dynamic>.from(widget._pageArgs);
                             internshipPageArgs['internship'] = internships[idx];
                             internshipPageArgs['profile'] = profiles.firstWhere(
-                              (profile) =>
-                                  profile.getUserId ==
+                                  (profile) =>
+                              profile.getUserId ==
                                   internships[idx].getCompanyId,
                             );
                             internshipPageArgs['notAppliedInternships'] =
@@ -146,9 +178,9 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             // update the data when coming back from the page
                             await Navigator.of(context)
                                 .pushNamed(
-                                  InternshipPage.namedRoute,
-                                  arguments: internshipPageArgs,
-                                )
+                              InternshipPage.namedRoute,
+                              arguments: internshipPageArgs,
+                            )
                                 .whenComplete(
                                     () => _updateOngoingInternshipsList());
                           },
@@ -163,20 +195,21 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           visualDensity:
-                              const VisualDensity(horizontal: -1, vertical: -1),
+                          const VisualDensity(horizontal: -1, vertical: -1),
                           leading: ClipOval(
                             child: CachedNetworkImage(
                               height: 50,
                               width: 50,
+                              cacheManager: widget._defaultCacheManager,
                               imageUrl: profiles
                                   .firstWhere((profile) =>
-                                      profile.getUserId ==
-                                      internships[idx].getCompanyId)
+                              profile.getUserId ==
+                                  internships[idx].getCompanyId)
                                   .getImageLink!,
                               placeholder: (context, url) =>
-                                  const CircularProgressIndicator(),
+                              const CircularProgressIndicator(),
                               errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
+                              const Icon(Icons.error),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -191,9 +224,9 @@ class _InternshipsMainPageState extends State<InternshipsMainPage> {
                             maxLines: 2,
                           ),
                           trailing: notAppliedInternships
-                                      .contains(internships[idx]) &&
-                                  _crtUser.runtimeType == Student &&
-                                  internships[idx].getIsOngoing!
+                              .contains(internships[idx]) &&
+                              _crtUser.runtimeType == Student &&
+                              internships[idx].getIsOngoing!
                               ? const Icon(Icons.check)
                               : null,
                         ),

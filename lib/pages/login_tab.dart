@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import '../base_widgets/custom_elevated_button.dart';
 import '../base_widgets/user_input_row.dart';
@@ -12,8 +13,10 @@ class LoginTab extends StatefulWidget {
   // and password storage based on the user role: Student/Company
   final String _userRole;
   final UserService _userService;
+  final DefaultCacheManager _cacheManager;
 
-  const LoginTab(this._userRole, this._userService, {Key? key})
+  const LoginTab(this._userRole, this._userService, this._cacheManager,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -114,6 +117,8 @@ class _LoginTabState extends State<LoginTab> {
                         children: [
                           CustomElevatedButton(
                             onPressed: () async {
+                              // empty cache so photos can be updated
+                              await widget._cacheManager.emptyCache();
                               final crtUser = await _authService.loginUser();
 
                               // clear the text fields after pressing the button
@@ -140,6 +145,8 @@ class _LoginTabState extends State<LoginTab> {
               ),
               CustomElevatedButton(
                 onPressed: () async {
+                  // empty cache so photos can be updated
+                  await widget._cacheManager.emptyCache();
                   final crtUser = await _authService.signupUser();
 
                   // clear the text fields after pressing the button
