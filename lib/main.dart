@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:internship_app_fis/pages/applied_internships_page.dart';
 import 'package:internship_app_fis/pages/internship_page.dart';
 import 'package:internship_app_fis/pages/internship_participants_page.dart';
 import 'package:internship_app_fis/pages/profile_page.dart';
@@ -68,6 +69,10 @@ class InternshipApp extends StatelessWidget {
               InternshipService(BaseDao()), UserProfileService(BaseDao())),
           InternshipParticipantsPage.namedRoute: (ctx) =>
               InternshipParticipantsPage(args, UserProfileService(BaseDao())),
+          AppliedInternshipsPage.namedRoute: (ctx) => AppliedInternshipsPage(
+              args,
+              InternshipService(BaseDao()),
+              UserProfileService(BaseDao())),
         };
 
         return MaterialPageRoute(
