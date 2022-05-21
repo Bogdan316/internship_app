@@ -91,7 +91,7 @@ class _MainDrawerState extends State<MainDrawer> {
     {
       'title': 'My Profile',
       'route': ProfilePage.namedRoute,
-      'icon': Icons.add_box
+      'icon': Icons.person
     },
     {
       'title': 'Add New Internship',

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:internship_app_fis/pages/create_user_profile_page.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../base_widgets/custom_elevated_button.dart';
 import './profile_widget.dart';
 import '../models/user_profile.dart';
 import '/base_widgets/button_widget.dart';
