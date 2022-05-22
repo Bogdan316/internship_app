@@ -51,6 +51,8 @@ class InternshipApp extends StatelessWidget {
         final args = settings.arguments as Map<String, dynamic>;
 
         var routes = <String, WidgetBuilder>{
+          LoginPage.namedRoute: (ctx) =>
+              LoginPage(UserService(BaseDao()), DefaultCacheManager()),
           OngoingInternshipsPage.namedRoute: (ctx) => OngoingInternshipsPage(
               args, InternshipService(BaseDao()), DefaultCacheManager()),
           AddNewInternshipPage.namedRoute: (ctx) =>

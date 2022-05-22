@@ -5,6 +5,8 @@ import 'login_tab.dart';
 import '../services/user_service.dart';
 
 class LoginPage extends StatelessWidget {
+  static const String namedRoute = '/login-page';
+
   final UserService _userService;
   final DefaultCacheManager _cacheManager;
   const LoginPage(this._userService, this._cacheManager, {Key? key})
