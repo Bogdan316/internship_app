@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
 import 'package:internship_app_fis/pages/firebase_api.dart';
@@ -21,9 +23,10 @@ import 'internships_main_page.dart';
 class CreateUserProfilePage extends StatefulWidget {
   static const String namedRoute = '/create-user-user-profile';
   final UserProfileService _userProfileService;
-  final Map<String,dynamic>_pageArgs;
+  final Map<String, dynamic> _pageArgs;
 
-  const CreateUserProfilePage(this._pageArgs,this._userProfileService, {Key? key})
+  const CreateUserProfilePage(this._pageArgs, this._userProfileService,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -45,17 +48,18 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
   late UserProfile? _crtUserProfile;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    crtUser= widget._pageArgs['user'] as User;
+    crtUser = widget._pageArgs['user'] as User;
     _crtUserProfile = widget._pageArgs.containsKey('profile')
         ? widget._pageArgs['profile'] as UserProfile
         : null;
     _fillCrtProfile();
   }
-  void _fillCrtProfile(){
-    if(_crtUserProfile != null){
-      setState((){
+
+  void _fillCrtProfile() {
+    if (_crtUserProfile != null) {
+      setState(() {
         _fullNameCtr.text = _crtUserProfile!.getFullName!;
         _repoLinkCtr.text = _crtUserProfile!.getRepo!;
         _aboutCtr.text = _crtUserProfile!.getAbout!;
@@ -71,7 +75,7 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx'],
+      allowedExtensions: ['pdf'],
     );
 
     if (result == null) return;
@@ -103,32 +107,32 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
     await showModalBottomSheet(
         context: context,
         builder: (context) => BottomSheet(
-          builder: (context) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                  leading: const Icon(Icons.camera),
-                  title: const Text('Camera'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _pickImage(ImageSource.camera);
-                  }),
-              ListTile(
-                  leading: const Icon(Icons.filter),
-                  title: const Text('Pick a file'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _pickImage(ImageSource.gallery);
-                  }),
-            ],
-          ),
-          onClosing: () {},
-        ));
+              builder: (context) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                      leading: const Icon(Icons.camera),
+                      title: const Text('Camera'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _pickImage(ImageSource.camera);
+                      }),
+                  ListTile(
+                      leading: const Icon(Icons.filter),
+                      title: const Text('Pick a file'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _pickImage(ImageSource.gallery);
+                      }),
+                ],
+              ),
+              onClosing: () {},
+            ));
   }
 
   Future _pickImage(ImageSource source) async {
     final pickedFile =
-    await _picker.pickImage(source: source, imageQuality: 50);
+        await _picker.pickImage(source: source, imageQuality: 50);
 
     if (pickedFile == null) {
       return;
@@ -140,6 +144,8 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
   }
 
   Future _uploadImageFile(User crtUser, String path) async {
+    if (path.contains('http')) return;
+
     final ref = storage.FirebaseStorage.instance
         .ref()
         .child(crtUser.runtimeType.toString())
@@ -162,7 +168,9 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
       appBar: AppBar(
         elevation: 5,
         backgroundColor: themeData.primaryColor,
-        title: const Text('Create Profile'),
+        title: _crtUserProfile == null
+            ? const Text('Create Profile')
+            : const Text('Edit Profile'),
       ),
       body: GestureDetector(
         onTap: () {
@@ -233,8 +241,9 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
                     _aboutCtr.text.isEmpty ||
                     _emailCtr.text.isEmpty ||
                     ((_cvFile == null || _repoLinkCtr.text.isEmpty) &&
-                        crtUser.runtimeType != Company) ||
-                    imagePath == null) {
+                        crtUser.runtimeType != Company &&
+                        _crtUserProfile == null) ||
+                    (imagePath == null && _crtUserProfile == null)) {
                   final snackBar = MessageSnackBar('All fields are mandatory!');
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 } else {
@@ -242,34 +251,45 @@ class _CreateUserProfilePageState extends State<CreateUserProfilePage> {
                   if (imagePath != null) {
                     await _uploadImageFile(crtUser, imagePath!);
                   }
+                  var userProfile = crtUser.runtimeType == Student
+                      ? StudentProfile(
+                          id: _crtUserProfile != null
+                              ? _crtUserProfile!.getId
+                              : null,
+                          userId: crtUser.getUserId,
+                          imageLink: _imageUrl,
+                          fullname: _fullNameCtr.text,
+                          email: _emailCtr.text,
+                          cvLink: _cvUrl ?? _crtUserProfile!.getCvLink,
+                          repo: _repoLinkCtr.text,
+                          about: _aboutCtr.text,
+                        )
+                      : CompanyProfile(
+                          id: _crtUserProfile != null
+                              ? _crtUserProfile!.getId
+                              : null,
+                          userId: crtUser.getUserId,
+                          imageLink: _imageUrl,
+                          fullname: _fullNameCtr.text,
+                          email: _emailCtr.text,
+                          about: _aboutCtr.text,
+                        );
+                  if (_crtUserProfile == null) {
+                    await widget._userProfileService
+                        .addUserProfile(userProfile);
+                  } else {
+                    await widget._userProfileService
+                        .updateUserProfile(userProfile);
+                  }
+                  await DefaultCacheManager()
+                      .removeFile(userProfile.getImageLink!);
+                  Navigator.of(context).pushReplacementNamed(
+                      InternshipsMainPage.namedRoute,
+                      arguments: <String, dynamic>{
+                        'user': crtUser,
+                        'profile': userProfile
+                      });
                 }
-                var userProfile = crtUser.runtimeType == Student
-                    ? StudentProfile(
-                  id: null,
-                  userId: crtUser.getUserId,
-                  imageLink: _imageUrl,
-                  fullname: _fullNameCtr.text,
-                  email: _emailCtr.text,
-                  cvLink: _cvUrl,
-                  repo: _repoLinkCtr.text,
-                  about: _aboutCtr.text,
-                )
-                    : CompanyProfile(
-                  id: null,
-                  userId: crtUser.getUserId,
-                  imageLink: _imageUrl,
-                  fullname: _fullNameCtr.text,
-                  email: _emailCtr.text,
-                  about: _aboutCtr.text,
-                );
-                await widget._userProfileService.addUserProfile(userProfile);
-                await DefaultCacheManager().emptyCache();
-                Navigator.of(context).pushReplacementNamed(
-                    InternshipsMainPage.namedRoute,
-                    arguments: <String, dynamic>{
-                      'user': crtUser,
-                      'profile': userProfile
-                    });
               },
               primary: themeData.primaryColorDark,
             ),

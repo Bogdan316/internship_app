@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:internship_app_fis/base_widgets/custom_elevated_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../base_widgets/theme_color.dart';
@@ -108,7 +109,7 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
                   margin: const EdgeInsets.only(bottom: bottom),
                   child: ProfileWidget(
                     imagePath: _studentProfile.getImageLink,
-                    onClicked: (){},
+                    onClicked: () {},
                     isEdit: true,
                   ),
                 ),
@@ -130,7 +131,7 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
               builder: (ctx, snapshot) {
                 if (snapshot.hasData) {
                   final internships =
-                  snapshot.data![0].toList() as List<Internship>;
+                      snapshot.data![0].toList() as List<Internship>;
                   final profiles = snapshot.data![1] as List<CompanyProfile>;
 
                   if (internships.isNotEmpty) {
@@ -165,20 +166,20 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
                                   // arguments that will be sent to the internship
                                   // page
                                   final internshipPageArgs =
-                                  Map<String, dynamic>.from(
-                                      widget._pageArgs);
+                                      Map<String, dynamic>.from(
+                                          widget._pageArgs);
                                   internshipPageArgs['internship'] =
-                                  internships[idx];
+                                      internships[idx];
                                   internshipPageArgs['profile'] =
                                       profiles.firstWhere(
-                                            (profile) =>
+                                    (profile) =>
                                         profile.getUserId ==
-                                            internships[idx].getCompanyId,
-                                      );
+                                        internships[idx].getCompanyId,
+                                  );
                                   internshipPageArgs['previousInternships'] =
                                       internships;
                                   internshipPageArgs['notAppliedInternships'] =
-                                  <Internship>[];
+                                      <Internship>[];
                                   Navigator.of(context).pushNamed(
                                     InternshipPage.namedRoute,
                                     arguments: internshipPageArgs,
@@ -202,13 +203,13 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
                                     width: 50,
                                     imageUrl: profiles
                                         .firstWhere((profile) =>
-                                    profile.getUserId ==
-                                        internships[idx].getCompanyId)
+                                            profile.getUserId ==
+                                            internships[idx].getCompanyId)
                                         .getImageLink!,
                                     placeholder: (context, url) =>
-                                    const CircularProgressIndicator(),
+                                        const CircularProgressIndicator(),
                                     errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error),
+                                        const Icon(Icons.error),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -259,81 +260,81 @@ class _ApplicantProfilePageState extends State<ApplicantProfilePage> {
   }
 
   Widget buildNameAndEmail(UserProfile user) => Column(
-    children: [
-      Text(
-        user.getFullName!,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        user.getEmail!,
-        style: const TextStyle(color: Colors.grey),
-      )
-    ],
-  );
+        children: [
+          Text(
+            user.getFullName!,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            user.getEmail!,
+            style: const TextStyle(color: Colors.grey),
+          )
+        ],
+      );
 
   Widget buildRepoButton(UserProfile user) => ButtonWidget(
-    text: 'Repository',
-    onClicked: () async {
-      await launchUrl(Uri.parse(user.getRepo!));
-    },
-  );
+        text: 'Repository',
+        icon: FontAwesomeIcons.github,
+        onClicked: () async {
+          await launchUrl(Uri.parse(user.getRepo!));
+        },
+      );
 
-  Widget buildDownloadCvButton(UserProfile user) => CustomElevatedButton(
-    label: 'CV',
-    onPressed: () async {
-      options = DownloaderUtils(
-        progressCallback: (current, total) {
-          final progress = (current / total) * 100;
-          print('Downloading: $progress');
-        },
-        file: File('$path/test'),
-        progress: ProgressImplementation(),
-        onDone: () {
-          OpenFile.open('$path/test');
+  Widget buildDownloadCvButton(UserProfile user) => ButtonWidget(
+        icon: Icons.download,
+        text: 'CV',
+        onClicked: () async {
+          options = DownloaderUtils(
+            progressCallback: (current, total) {
+              final progress = (current / total) * 100;
+              print('Downloading: $progress');
+            },
+            file: File('$path/test'),
+            progress: ProgressImplementation(),
+            onDone: () {
+              OpenFile.open('$path/test');
+            },
+          );
+          core = await Flowder.download(
+            user.getCvLink!,
+            options,
+          );
         },
       );
-      core = await Flowder.download(
-        user.getCvLink!,
-        options,
-      );
-    },
-    primary: Theme.of(context).primaryColorDark,
-  );
 
   Widget buildAbout(UserProfile user) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 48),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'About',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        padding: const EdgeInsets.symmetric(horizontal: 48),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'About',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              user.getAbout!,
+              style: const TextStyle(fontSize: 16, height: 1.4),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          user.getAbout!,
-          style: const TextStyle(fontSize: 16, height: 1.4),
-        ),
-      ],
-    ),
-  );
+      );
 
   buildCoverImage(Color colorStart, Color colorEnd) => Container(
-    // color: Colors.grey,
-    width: double.infinity,
-    height: coverHeight,
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.bottomCenter,
-        end: Alignment.topCenter,
-        colors: [
-          colorStart,
-          colorEnd,
-        ],
-      ),
-    ),
-  );
+        width: double.infinity,
+        height: coverHeight,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              colorStart,
+              colorEnd,
+            ],
+          ),
+        ),
+      );
 
   List<Widget> _buildStudentLayout(StudentProfile profile) {
     return [

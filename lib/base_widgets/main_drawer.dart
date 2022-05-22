@@ -7,6 +7,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 import '../base_widgets/theme_color.dart';
 import '../pages/add_new_internship_page.dart';
 import '../models/user.dart';
+import '../pages/login_page.dart';
 
 class DrawerListTile extends StatelessWidget {
   // Builds a custom ListTile with InkWell animations to be used in the
@@ -54,7 +55,12 @@ class DrawerListTile extends StatelessWidget {
             // closes the drawer before redirecting to the next page
             Navigator.of(context).pop();
             // passes the current arguments to the next page
-            Navigator.of(context).pushNamed(_route, arguments: _pageArgs);
+            if (_route == LoginPage.namedRoute) {
+              Navigator.of(context)
+                  .pushReplacementNamed(_route, arguments: _pageArgs);
+            } else {
+              Navigator.of(context).pushNamed(_route, arguments: _pageArgs);
+            }
           },
         ),
         const SizedBox(
@@ -91,7 +97,7 @@ class _MainDrawerState extends State<MainDrawer> {
     {
       'title': 'My Profile',
       'route': ProfilePage.namedRoute,
-      'icon': Icons.add_box
+      'icon': Icons.person
     },
     {
       'title': 'Add New Internship',
@@ -102,6 +108,11 @@ class _MainDrawerState extends State<MainDrawer> {
       'title': 'Ongoing Internships',
       'route': OngoingInternshipsPage.namedRoute,
       'icon': Icons.settings
+    },
+    {
+      'title': 'Logout',
+      'route': LoginPage.namedRoute,
+      'icon': Icons.logout,
     }
   ];
 
@@ -110,17 +121,17 @@ class _MainDrawerState extends State<MainDrawer> {
     {
       'title': 'My Profile',
       'route': ProfilePage.namedRoute,
-      'icon': Icons.add_box
-    },
-    {
-      'title': 'My Internships',
-      'route': OngoingInternshipsPage.namedRoute,
-      'icon': Icons.settings
+      'icon': Icons.person
     },
     {
       'title': 'My Applications',
       'route': AppliedInternshipsPage.namedRoute,
       'icon': Icons.check
+    },
+    {
+      'title': 'Logout',
+      'route': LoginPage.namedRoute,
+      'icon': Icons.logout,
     }
   ];
 
@@ -142,7 +153,7 @@ class _MainDrawerState extends State<MainDrawer> {
         ),
       ),
       backgroundColor:
-      ColorUtil.lightenColor(Theme.of(context).primaryColor, 0.85),
+          ColorUtil.lightenColor(Theme.of(context).primaryColor, 0.85),
       child: Container(
         alignment: Alignment.centerLeft,
         margin: const EdgeInsets.all(20),
@@ -156,11 +167,11 @@ class _MainDrawerState extends State<MainDrawer> {
               ...drawerItems
                   .map(
                     (item) => DrawerListTile(
-                    item['icon']! as IconData,
-                    item['title']! as String,
-                    item['route']! as String,
-                    widget._pageArgs),
-              )
+                        item['icon']! as IconData,
+                        item['title']! as String,
+                        item['route']! as String,
+                        widget._pageArgs),
+                  )
                   .toList(),
               // toggles between the ongoing and past internships from the
               // main page
